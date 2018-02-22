@@ -83,7 +83,7 @@ class WARscout:
             print('Error')
 
 class Data:
-    key = "wri5PWmHJw5O9TrdMtUrWQktTK9J0eQqg1DuLMeyS55T5F2r2nEn0qWRls7W0Y2P"
+    key = ""
     tba = tbapy.TBA(key)
     event = "PCH District Gainesville Event"
     def Status():
@@ -91,4 +91,5 @@ class Data:
     def getStatus():
         return Status()
     def __init__():
-        print "WAR botics FRC scouting script "
+        print "WAR botics FRC scouting script"
+    def getTeamData():
