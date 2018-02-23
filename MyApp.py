@@ -92,4 +92,5 @@ class Data:
         return Status()
     def __init__():
         print "WAR botics FRC scouting script"
-    def getTeamData():
+    def getTeamData(teamNumber):
+        team = # get the team number from google spread sheet
