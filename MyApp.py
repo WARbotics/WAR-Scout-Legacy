@@ -53,18 +53,19 @@ class WARscout:
             service = discovery.build('sheets', 'v4', http=http,
                                       discoveryServiceUrl=discoveryUrl)
 
-            spreadsheetId = '1-CeZMc6wb3X-L0ljsQIrLODhHt-SPJBmvi8BDEdz2OA'
-            rangeName = sheet + '!A2:b'
+            spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE'
+            rangeName = sheet + '!A2:j'
             result = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheetId, range=rangeName).execute()
             values = result.get('values', [])
-    #cheese sdffsdfdsfsd
+
             if not values:
                 print('No data found.')
             else:
                 for row in values:
                     list.append(int(row[0]))
                     list.append(int(row[1]))
+<<<<<<< HEAD
             global endh
             global endm
             getEndh = list.index(99) - 2
@@ -81,6 +82,8 @@ class WARscout:
                         11,5,11,49,11,54,12,19,12,24,13,8,13,16,14,0,
                         14,5,14,49,15,25,99,99]
             print('Error')
+=======
+>>>>>>> bba062b4db78b7ddef244a78e91ee5bb3f736dd9
 
 class Data:
     key = ""
@@ -91,9 +94,16 @@ class Data:
     def getStatus():
         return Status()
     def __init__():
+<<<<<<< HEAD
         tba.event_rankings(event)
         print "WAR botics FRC scouting script"
     def getTeamData(teamNumber):
         # get the team number from google spread sheet
         yearTeam = tba.team_years(teamNumber)
         robotYear = tba.team_robots(teamNumber)
+=======
+        print "WAR botics FRC scouting script"
+    def getTeamData(teamNumber):
+        team = # get the team number from google spread sheet
+
+>>>>>>> bba062b4db78b7ddef244a78e91ee5bb3f736dd9
