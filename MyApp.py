@@ -2,8 +2,9 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-
-
+import tbapy
+key = "wri5PWmHJw5O9TrdMtUrWQktTK9J0eQqg1DuLMeyS55T5F2r2nEn0qWRls7W0Y2P"
+tba = tbapy.TBA(key)
 class WARscout:
     def get_credentials():
         """Gets valid user credentials from storage.
@@ -80,3 +81,19 @@ class WARscout:
                         11,5,11,49,11,54,12,19,12,24,13,8,13,16,14,0,
                         14,5,14,49,15,25,99,99]
             print('Error')
+
+class Data:
+    key = ""
+    tba = tbapy.TBA(key)
+    event = "PCH District Gainesville Event"
+    def Status():
+        tba.Status()
+    def getStatus():
+        return Status()
+    def __init__():
+        tba.event_rankings(event)
+        print "WAR botics FRC scouting script"
+    def getTeamData(teamNumber):
+        # get the team number from google spread sheet
+        yearTeam = tba.team_years(teamNumber)
+        robotYear = tba.team_robots(teamNumber)
