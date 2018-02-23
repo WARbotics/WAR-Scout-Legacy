@@ -53,34 +53,18 @@ class WARscout:
             service = discovery.build('sheets', 'v4', http=http,
                                       discoveryServiceUrl=discoveryUrl)
 
-            spreadsheetId = '1-CeZMc6wb3X-L0ljsQIrLODhHt-SPJBmvi8BDEdz2OA'
-            rangeName = sheet + '!A2:b'
+            spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE'
+            rangeName = sheet + '!A2:j'
             result = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheetId, range=rangeName).execute()
             values = result.get('values', [])
-    #cheese sdffsdfdsfsd
+
             if not values:
                 print('No data found.')
             else:
                 for row in values:
                     list.append(int(row[0]))
                     list.append(int(row[1]))
-            global endh
-            global endm
-            getEndh = list.index(99) - 2
-            getEndm = list.index(99) - 1
-            endh = list[getEndh]
-            endm = list[getEndm]
-        except:
-            if sheet == 'Current':
-                list = [8,0,8,30,8,35,9,16,9,21,10,2,10,7,10,48,10,53,
-                        11,34,11,39,12,4,12,9,12,50,12,55,13,36,13,41,
-                        14,22,14,27,14,57,15,35,99,99]
-            if sheet == 'CurrentF':
-                list = [8,0,8,30,8,35,9,19,9,24,10,8,10,16,11,0,
-                        11,5,11,49,11,54,12,19,12,24,13,8,13,16,14,0,
-                        14,5,14,49,15,25,99,99]
-            print('Error')
 
 class Data:
     key = ""
@@ -94,3 +78,4 @@ class Data:
         print "WAR botics FRC scouting script"
     def getTeamData(teamNumber):
         team = # get the team number from google spread sheet
+
