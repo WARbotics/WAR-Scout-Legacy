@@ -11,7 +11,7 @@ import pandas
 import matplotlib
 from datetime import date
 import texttable as tt
-key = "wri5PWmHJw5O9TrdMtUrWQktTK9J0eQqg1DuLMeyS55T5F2r2nEn0qWRls7W0Y2P"
+key = ""
 tba = tbapy.TBA(key)
 class WARScout:
     def get_credentials():
