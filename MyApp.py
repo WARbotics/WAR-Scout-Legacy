@@ -3,9 +3,17 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 import tbapy
+import httplib2
+import os
+import requests
+import numpy
+import pandas
+import matplotlib
+from datetime import date
+import texttable as tt
 key = "wri5PWmHJw5O9TrdMtUrWQktTK9J0eQqg1DuLMeyS55T5F2r2nEn0qWRls7W0Y2P"
 tba = tbapy.TBA(key)
-class WARscout:
+class WARScout:
     def get_credentials():
         """Gets valid user credentials from storage.
 
@@ -37,7 +45,6 @@ class WARscout:
     def getSheet():
         global list
         list = []
-        getDay()
         try:
 
             """Shows basic usage of the Sheets API.
@@ -54,7 +61,7 @@ class WARscout:
                                       discoveryServiceUrl=discoveryUrl)
 
             spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE'
-            rangeName = sheet + '!A2:j'
+            rangeName = sheet + '!B2:b'
             result = service.spreadsheets().values().get(
                 spreadsheetId=spreadsheetId, range=rangeName).execute()
             values = result.get('values', [])
@@ -65,19 +72,42 @@ class WARscout:
                 for row in values:
                     list.append(int(row[0]))
                     list.append(int(row[1]))
-
-class Data:
+        except:
+            print('You got beaned no data found kiddo')
     key = ""
     tba = tbapy.TBA(key)
     event = "PCH District Gainesville Event"
-    def Status():
-        tba.Status()
-    def getStatus():
-        return Status()
+    tab = tt.Texttable()
+    def status():
+        #figuring out if TBA is actually online
+        statusCheck = tba.status()
+        if statusCheck['is_datafeed_down'] == False
+    else:
+        print ('Team Blue alliance systems are down')
+            exit()
+
+    def getYear():
+        #collecting currect year
+        year = date.today().year
     def __init__():
-        tba.event_rankings(event)
-        print "WAR botics FRC scouting script"
+        print("WAR botics FRC scouting script")
+    teamNumber = list[0]
     def getTeamData(teamNumber):
-        # get the team number from google spread sheet
-        yearTeam = tba.team_years(teamNumber)
-        robotYear = tba.team_robots(teamNumber)
+        #collecting data
+        mainTeam = tba.team(teamNumber, False)
+        nickName = mainTeam['nickname']
+        teamWebsite = mainTeam['website']
+        rookieYear = mainTeam['rookie_year']
+    def teamAge(rookieYear, year):
+        #clean this mess
+        rookieYear - year = age
+
+
+if __name__ == '__main__':
+    w = WARScout()
+    header = ['Team Number', 'NickName', 'Team Age']
+    tab.header(header)
+    tab.add_row(teamNumber)
+    tab.add_row(w.getTeamData(teamNumber).nickName)
+    tab.add_row(w.teamAge(getTeamData(teamNumber).rookieYear))
+    print tab.draw()
