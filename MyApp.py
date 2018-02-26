@@ -40,10 +40,7 @@ def get_credentials():
     if not credentials or credentials.invalid:
         flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
         flow.user_agent = APPLICATION_NAME
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
-            credentials = tools.run(flow, store)
+        credentials = tools.run_flow(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
 
@@ -88,12 +85,6 @@ def status():
     else:
         print ('Team Blue alliance systems are down')
         exit()
-
-#def __init__():
-#    get_credentials()
-#    getSheet()
-#    print(str(list[0]))
-    # print("WAR botics FRC scouting script")
 def getTeamNumber():
     teamNumber = list[0]
 def getAutoCrossLine(auto):
