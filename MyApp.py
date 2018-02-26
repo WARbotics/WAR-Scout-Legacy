@@ -1,3 +1,4 @@
+
 from __future__ import print_function
 from apiclient import discovery
 from oauth2client import client
@@ -19,6 +20,8 @@ APPLICATION_NAME = 'WARScout'
 key = "6ZS9aeVtUuidbC2byVYnLlAuIid60ipTXZbuWkGLffCTEY5nrMjdiV6EUUQTodmK"
 tba = tbapy.TBA(key)
 event = "2018gagr"
+lastevent = "2017gagr"
+x = 0
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -47,7 +50,6 @@ def get_credentials():
 def getSheet():
     global list
     list = []
-    x = 0
 
     """Shows basic usage of the Sheets API.
 
@@ -73,9 +75,17 @@ def getSheet():
         # Print columns A and E, which correspond to indices 0 and 4.
     #    print('%s, %s' % (row[0], row[4]))
     for row in values:
-        while x < 10:
+        for x in range(0, 10):
             list.append(str(row[x]))
             x = x + 1
+
+def findInfo(sendy, y):
+    while True:
+        try:
+            x = x + y
+            sendy.append(list[x])
+        except:
+            return(sendy)
 
 def status():
     #figuring out if TBA is actually online
@@ -86,36 +96,69 @@ def status():
         print ('Team Blue alliance systems are down')
         exit()
 def getTeamNumber():
-    teamNumber = list[0]
-def getAutoCrossLine(auto):
-    auto = list[2]
-    return auto
-def getTeamData():
+    teamList = [list[0]]
+    teamList = findInfo(teamList, 10)
+    for teamList
+    return(teamList)
+
+def listSplitter(sList, catch):
+    newList = {}
+    for sList in range(0, len(sList)):
+        newList.update({catch + sList[x]})
+
+
+
+def getAutoCrossLine(teamNumber):
+    autolist = [list[2]]
+    autoList = findInfo(autoList, 11)
+    return(autoList)
+def setTeamName(teamNumber):
+    teamNumber getTeamNumber()
+def get2017Data():
+    ranking = tba.event_rankings(lastevent)
+    team = setTeamName()
+    #added the value of teamNumber ^^^^
+    y = '1'
+    for y in range(1, 40):
+        frc_team = ranking['rankings'][y]['team_key']
+        if frc_team == team:
+            return(frc_team)
+
+
+def getTeamData(teamNumber):
     #collecting data
+
     getTeamNumber()
     mainTeam = tba.team(teamNumber, False)
     nickName = mainTeam['nickname']
     teamWebsite = mainTeam['website']
     rookieYear = mainTeam['rookie_year']
-#def teamAge(rookieYear, Age):
+    teamdata = {'Nick name': nickName, 'Team website': teamWebsite, 'rookie year': rookieYear}
+    return teamdata
+def teamAge(Age):
     #clean this mess
+    t = getTeamData()
+    rookieY = t.teamdata['rookie year']
+    year = date.today().year
+    Age = rookieY - year
+    return Age
+def dataAnalysis(self):
+    self.teamAge(0)
+    number = self.getTeamNumber()
+    self.getTeamData(number)
 
-    #year = date.today().year
-    #rookieYear - year = Age
-    #return Age
-#def dataAnalysis(Age):
-    #pass
-#def leaderboard():
-    #teamAge()
-    #getTeamNumber()
-    #getTeamData()
-    #lb = pd.DataFrame({'Team name':  [nickName], 'Team Number': [teamNumber], 'Ranking score' []})
-    #^^^ write the leaderboard score system
-    #lb = lb.sort(['Team name', 'Team Number', 'Ranking score'], ascending=[1,0])
-    #print (lb)
+def leaderboard(self):
+    self.teamAge(0)
+    getTeamNumber()
+    getTeamData()
+    df = df.DataFrame({'Team name':  [nickName], 'Team Number': [teamNumber]})
+    #^^^ write the leaderboard score system. ADD the Score
+    df = df.sort(['Team name', 'Team Number', 'Ranking score'], ascending=[1,0])
+    print (df)
 
 
 if __name__ == '__main__':
     get_credentials()
     getSheet()
-    print (getTeamNumber())
+    t = getTeamNumber()
+    print (t)
