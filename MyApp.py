@@ -22,6 +22,7 @@ tba = tbapy.TBA(key)
 event = "2018gagr"
 lastevent = "2017gagr"
 x = 0
+infinite = 0
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -80,10 +81,11 @@ def getSheet():
             x = x + 1
 
 def findInfo(sendy, y):
-    while True:
+    x = y
+    for infinite in range(0, 1000):
         try:
-            x = x + y
             sendy.append(list[x])
+            x = x + 10
         except:
             return(sendy)
 
@@ -95,39 +97,41 @@ def status():
     else:
         print ('Team Blue alliance systems are down')
         exit()
+
 def getTeamNumber():
-    teamList = [list[0]]
-    teamList = findInfo(teamList, 10)
-    for teamList
+    teamList = []
+    teamList.append(findInfo(teamList, 0))
+    del teamList[len(teamList)-1]
     return(teamList)
 
-def listSplitter(sList, catch):
-    newList = {}
+def teamDictMaker(sList, catch,):
+    newTeamDict = {}
     for sList in range(0, len(sList)):
         newList.update({catch + sList[x]})
 
+    return(newTeamDict)
 
-
-def getAutoCrossLine(teamNumber):
-    autolist = [list[2]]
-    autoList = findInfo(autoList, 11)
+def getAuto():
+    autoList = []
+    autoList.append(findInfo(autoList, 1))
+    del autoList[len(autoList)-1]
     return(autoList)
-def setTeamName(teamNumber):
-    teamNumber getTeamNumber()
-def get2017Data():
-    ranking = tba.event_rankings(lastevent)
-    team = setTeamName()
-    #added the value of teamNumber ^^^^
-    y = '1'
-    for y in range(1, 40):
-        frc_team = ranking['rankings'][y]['team_key']
-        if frc_team == team:
-            return(frc_team)
 
+def get2017Data(teamBlankNumber):
+    event = '2017gagr'
+    eventdata = tba.event_teams(event, True, True)
+    teamsAtEvent = len(eventdata)
+    print(eventdataCount)
+    ranking = tba.event_rankings(event)
+    y = '1'
+    teamFRCNumber = 'frc' + teamBlankNumber
+    for y in range(1, teamsAtEvent):
+        frc_team = ranking['rankings'][y]['team_key']
+        if frc_team == teamFRCNumber:
+            break
 
 def getTeamData(teamNumber):
     #collecting data
-
     getTeamNumber()
     mainTeam = tba.team(teamNumber, False)
     nickName = mainTeam['nickname']
@@ -135,6 +139,7 @@ def getTeamData(teamNumber):
     rookieYear = mainTeam['rookie_year']
     teamdata = {'Nick name': nickName, 'Team website': teamWebsite, 'rookie year': rookieYear}
     return teamdata
+
 def teamAge(Age):
     #clean this mess
     t = getTeamData()
@@ -142,6 +147,7 @@ def teamAge(Age):
     year = date.today().year
     Age = rookieY - year
     return Age
+
 def dataAnalysis(self):
     self.teamAge(0)
     number = self.getTeamNumber()
