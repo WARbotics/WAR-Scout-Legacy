@@ -103,32 +103,87 @@ def getTeamNumber():
     teamList.append(findInfo(teamList, 0))
     del teamList[len(teamList)-1]
     return(teamList)
-
-def teamDictMaker(sList, catch,):
-    newTeamDict = {}
-    for sList in range(0, len(sList)):
-        newList.update({catch + sList[x]})
-
-    return(newTeamDict)
-
 def getAuto():
     autoList = []
     autoList.append(findInfo(autoList, 1))
     del autoList[len(autoList)-1]
     return(autoList)
+def getAutoHigh():
+    autoHighList = []
+    autoHighList.append(findInfo(autoHighList, 2))
+    del autoHighList[len(autoHighList)-1]
+    return(autoHighList)
+def getAutoLow():
+    autoLowList = []
+    autoLowList.append(findInfo(autoLowList, 3))
+    del autoLowList[len(autoLowList)-1]
+    return(autoLowList)
+def getTeleopHigh():
+    teleopHighList = []
+    teleopHighList.append(findInfo(teleopHighList, 4))
+    del teleopHighList[len(teleopHighList)-1]
+    return(teleopHighList)
+def getTeleopLow():
+    teleopLowList = []
+    teleopLowList.append(findInfo(teleopLowList, 5))
+    del teleopLowList[len(teleopLowList)-1]
+    return(teleopLowList)
+def getUsefull():
+    usefullList = []
+    usefullList.append(findInfo(usefullList, 6))
+    del usefullList[len(usefullList)-1]
+    return(usefullList)
+def getDriveScore():
+    driveList = []
+    driveList.append(findInfo(driveList, 7))
+    del driveList[len(driveList)-1]
+    return(driveList)
+def getCanClimb():
+    climbList = []
+    climbList.append(findInfo(climbList, 8))
+    del climbList[len(climbList)-1]
+    return(climbList)
+def getFouls():
+    foulList = []
+    foulList.append(findInfo(foulList, 9))
+    del foulList[len(foulList)-1]
+    return(foulList)
+def teamDictMaker():
+    x = 0
+    global teamDict
+    teamDict = {}
+    for infinite in range(0, 1000):
+        try:
+            add = {(getTeamNumber()[x]):[(getAuto()[x]), (getAutoHigh()[x]),
+                                         (getAutoLow()[x]), (getTeleopHigh()[x]),
+                                         (getTeleopLow()[x]), (getUsefull()[x]),
+            (getDriveScore()[x]), (getCanClimb()[x]), (getFouls()[x])]}
+            teamDict.update(add)
+            x = x + 1
+        except:
+            return(teamDict)
 
-def get2017Data(teamBlankNumber):
-    event = '2017gagr'
-    eventdata = tba.event_teams(event, True, True)
+def get2017Data(self, teamBlankNumber):
+    eventdata = self.tba.event_teams(lastevent, True, True)
     teamsAtEvent = len(eventdata)
-    print(eventdataCount)
-    ranking = tba.event_rankings(event)
+    ranking = self.tba.event_rankings(lastevent)
     y = '1'
     teamFRCNumber = 'frc' + teamBlankNumber
     for y in range(1, teamsAtEvent):
-        frc_team = ranking['rankings'][y]['team_key']
+        frc_team = self.ranking['rankings'][y]['team_key']
         if frc_team == teamFRCNumber:
+            rankingPosition = y
+            print (rankingPosition)
             break
+    #collects all of last years data for team that is needed
+    frc_team = self.ranking['rankings'][y]
+    getDQ = self.ranking['rankings'][y]['dq']
+    getRank = self.ranking['rankings'][y]['rank']
+    getRecord = self.ranking['rankings'][y]['record']
+    getWins = self.ranking['rankings'][y]['record']['wins']
+    getLoses = self.ranking['rankings'][y]['record']['losses']
+    getTies = self.ranking['rankings'][y]['record']['ties']
+    getPlay = self.ranking['rankings'][y]['matches_played']
 
 def getTeamData(teamNumber):
     #collecting data
@@ -149,22 +204,28 @@ def teamAge(Age):
     return Age
 
 def dataAnalysis(self):
-    self.teamAge(0)
+    self.teamAge()
     number = self.getTeamNumber()
     self.getTeamData(number)
+    get2017Data(number)
+    g_score = rookieYear + getRank + getWins
+    b_score = getDQ + getLoses
+    score = g_score - b_score
+    #^^ this just basic for testing
 
 def leaderboard(self):
     self.teamAge(0)
-    getTeamNumber()
-    getTeamData()
-    df = df.DataFrame({'Team name':  [nickName], 'Team Number': [teamNumber]})
+    teamnumber = getTeamNumber()
+    getTeamData(teamnumber)
+    dataAnalysis()
+    df = df.DataFrame({'Team name':  [nickName], 'Team Number': [teamNumber], 'Score': [score]})
     #^^^ write the leaderboard score system. ADD the Score
-    df = df.sort(['Team name', 'Team Number', 'Ranking score'], ascending=[1,0])
+    #df = df.sort(['Team name', 'Team Number', 'Ranking score'], ascending=[1,0])
     print (df)
 
 
 if __name__ == '__main__':
     get_credentials()
     getSheet()
-    t = getTeamNumber()
+    t = teamDictMaker()
     print (t)
