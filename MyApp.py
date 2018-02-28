@@ -1,9 +1,10 @@
-
-from __future__ import print_function
-from apiclient import discovery
-from oauth2client import client
-from oauth2client import tools
-from oauth2client.file import Storage
+#Devloped by Victor H. and Trey W.
+#Team 6925
+from __future__ import print_function #Google API Stuff
+from apiclient import discovery #Google API Stuff
+from oauth2client import client #Google API Stuff
+from oauth2client import tools #Google API Stuff
+from oauth2client.file import Storage #Google API Stuff
 import tbapy
 import httplib2
 import os
@@ -11,28 +12,23 @@ import requests
 import numpy
 import pandas as pd
 import matplotlib
-from datetime import date
+from datetime import datetime #Gets Date
 import texttable as tt
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
-CLIENT_SECRET_FILE = 'client_secret.json'
+CLIENT_SECRET_FILE = 'client_secret.json' #Goto Google's API Dev
 APPLICATION_NAME = 'WARScout'
-key = "6ZS9aeVtUuidbC2byVYnLlAuIid60ipTXZbuWkGLffCTEY5nrMjdiV6EUUQTodmK"
+key = "6ZS9aeVtUuidbC2byVYnLlAuIid60ipTXZbuWkGLffCTEY5nrMjdiV6EUUQTodmK" #TBA Key
 tba = tbapy.TBA(key)
-event = "2018gagr"
-lastevent = "2017gagr"
-x = 0
-infinite = 0
+year = datetime.now().year #Gets Year
+lastyear = year - 1
+event = str(year) + 'gagr'
+lastevent = (str(lastyear))+ 'gagr'
+x = 0 #Do not change
+infinite = 0 #No not change
 
 def get_credentials():
-    """Gets valid user credentials from storage.
 
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
-
-    Returns:
-    Credentials, the obtained credential.
-    """
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
@@ -48,24 +44,18 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def getSheet():
+def getSheet(): #Scrapes information off of the quanatiative
     global list
     list = []
 
-    """Shows basic usage of the Sheets API.
-
-    Creates a Sheets API service object and prints the names and majors of
-    students in a sample spreadsheet:
-    https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-    """
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
     service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
-    spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE'
-    rangeName = 'B2:K'
+    spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE' #Google Sheet ID
+    rangeName = 'B2:K' #Range
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
@@ -80,7 +70,7 @@ def getSheet():
             list.append(str(row[x]))
             x = x + 1
 
-def findInfo(sendy, y):
+def findInfo(sendy, y): #Makes the List
     x = y
     for infinite in range(0, 1000):
         try:
@@ -98,134 +88,78 @@ def status():
         print ('Team Blue alliance systems are down')
         exit()
 
+def getList(get): #Gathers Information to make a list
+    newList = []
+    newList.append(findInfo(newList, get))
+    del newList[len(newList)-1]
+    return(newList)
 def getTeamNumber():
     teamList = []
     teamList.append(findInfo(teamList, 0))
     del teamList[len(teamList)-1]
     return(teamList)
-def getAuto():
-    autoList = []
-    autoList.append(findInfo(autoList, 1))
-    del autoList[len(autoList)-1]
-    return(autoList)
-def getAutoHigh():
-    autoHighList = []
-    autoHighList.append(findInfo(autoHighList, 2))
-    del autoHighList[len(autoHighList)-1]
-    return(autoHighList)
-def getAutoLow():
-    autoLowList = []
-    autoLowList.append(findInfo(autoLowList, 3))
-    del autoLowList[len(autoLowList)-1]
-    return(autoLowList)
-def getTeleopHigh():
-    teleopHighList = []
-    teleopHighList.append(findInfo(teleopHighList, 4))
-    del teleopHighList[len(teleopHighList)-1]
-    return(teleopHighList)
-def getTeleopLow():
-    teleopLowList = []
-    teleopLowList.append(findInfo(teleopLowList, 5))
-    del teleopLowList[len(teleopLowList)-1]
-    return(teleopLowList)
-def getUsefull():
-    usefullList = []
-    usefullList.append(findInfo(usefullList, 6))
-    del usefullList[len(usefullList)-1]
-    return(usefullList)
-def getDriveScore():
-    driveList = []
-    driveList.append(findInfo(driveList, 7))
-    del driveList[len(driveList)-1]
-    return(driveList)
-def getCanClimb():
-    climbList = []
-    climbList.append(findInfo(climbList, 8))
-    del climbList[len(climbList)-1]
-    return(climbList)
-def getFouls():
-    foulList = []
-    foulList.append(findInfo(foulList, 9))
-    del foulList[len(foulList)-1]
-    return(foulList)
-def teamDictMaker():
+
+def teamDictMaker(): #Puts all the Team Information into a dictionary
     x = 0
     global teamDict
     teamDict = {}
+    getSheet() #Updates Information
     for infinite in range(0, 1000):
         try:
-            add = {(getTeamNumber()[x]):[(getAuto()[x]), (getAutoHigh()[x]),
-                                         (getAutoLow()[x]), (getTeleopHigh()[x]),
-                                         (getTeleopLow()[x]), (getUsefull()[x]),
-            (getDriveScore()[x]), (getCanClimb()[x]), (getFouls()[x])]}
+            add = {(getTeamNumber()[x]):[(getList(1)[x]), (getList(2)[x]),
+                                         (getList(3)[x]), (getList(4)[x]),
+                                         (getList(5)[x]), (getList(6)[x]),
+            (getList(7)[x]), (getList(8)[x]), (getList(9)[x]), (getTeamData(getTeamNumber()[x]))]}
             teamDict.update(add)
             x = x + 1
         except:
             return(teamDict)
 
-def get2017Data(self, teamBlankNumber):
-    eventdata = self.tba.event_teams(lastevent, True, True)
+def get2017Data(teamBlankNumber):
+    eventdata = tba.event_teams(lastevent, True, True)
     teamsAtEvent = len(eventdata)
-    ranking = self.tba.event_rankings(lastevent)
+    ranking = tba.event_rankings(lastevent)
     y = '1'
-    teamFRCNumber = 'frc' + teamBlankNumber
+    teamFRCNumber = 'frc' + str(teamBlankNumber)
     for y in range(1, teamsAtEvent):
-        frc_team = self.ranking['rankings'][y]['team_key']
+        frc_team = ranking['rankings'][y]['team_key']
         if frc_team == teamFRCNumber:
-            rankingPosition = y
-            print (rankingPosition)
-            break
-    #collects all of last years data for team that is needed
-    frc_team = self.ranking['rankings'][y]
-    getDQ = self.ranking['rankings'][y]['dq']
-    getRank = self.ranking['rankings'][y]['rank']
-    getRecord = self.ranking['rankings'][y]['record']
-    getWins = self.ranking['rankings'][y]['record']['wins']
-    getLoses = self.ranking['rankings'][y]['record']['losses']
-    getTies = self.ranking['rankings'][y]['record']['ties']
-    getPlay = self.ranking['rankings'][y]['matches_played']
-
+            print (y)
+            #collects all of last years data for team that is needed
+            frc_team = ranking['rankings'][y]
+            getDQ = ranking['rankings'][y]['dq']
+            getRank = ranking['rankings'][y]['rank']
+            getRecord = ranking['rankings'][y]['record']
+            getWins = ranking['rankings'][y]['record']['wins']
+            getLoses = ranking['rankings'][y]['record']['losses']
+            getTies = ranking['rankings'][y]['record']['ties']
+            getPlay = ranking['rankings'][y]['matches_played']
+            teamPastDictGet = {'Frc team': frc_team, 'DQ': getDQ, 'Ranking': getRank,
+                               'Record': getRecord,'Wins': getWins, 'Loses': getLoses,
+                               'Ties': getTies, 'Matches Played': getPlay}
+            return teamPastDictGet
 def getTeamData(teamNumber):
     #collecting data
-    getTeamNumber()
     mainTeam = tba.team(teamNumber, False)
-    nickName = mainTeam['nickname']
+    nickName = mainTeam['nick_name']
     teamWebsite = mainTeam['website']
     rookieYear = mainTeam['rookie_year']
     teamdata = {'Nick name': nickName, 'Team website': teamWebsite, 'rookie year': rookieYear}
-    return teamdata
 
-def teamAge(Age):
+def teamAge(rookieY):
     #clean this mess
-    t = getTeamData()
-    rookieY = t.teamdata['rookie year']
     year = date.today().year
     Age = rookieY - year
-    return Age
 
-def dataAnalysis(self):
-    self.teamAge()
-    number = self.getTeamNumber()
-    self.getTeamData(number)
+def dataAnalysis():
+    teamAge()
+    number = getTeamNumber()
+    getTeamData(number)
     get2017Data(number)
     g_score = rookieYear + getRank + getWins
     b_score = getDQ + getLoses
     score = g_score - b_score
     #^^ this just basic for testing
-
-def leaderboard(self):
-    self.teamAge(0)
-    teamnumber = getTeamNumber()
-    getTeamData(teamnumber)
-    dataAnalysis()
-    df = df.DataFrame({'Team name':  [nickName], 'Team Number': [teamNumber], 'Score': [score]})
-    #^^^ write the leaderboard score system. ADD the Score
-    #df = df.sort(['Team name', 'Team Number', 'Ranking score'], ascending=[1,0])
-    print (df)
-
-
 if __name__ == '__main__':
     get_credentials()
-    getSheet()
-    t = teamDictMaker()
-    print (t)
+    teamDictMaker()
