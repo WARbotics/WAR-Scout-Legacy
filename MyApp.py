@@ -141,25 +141,25 @@ def get2017Data(teamBlankNumber):
 def getTeamData(teamNumber):
     #collecting data
     mainTeam = tba.team(teamNumber, False)
-    nickName = mainTeam['nick_name']
+    nickName = mainTeam['nickname']
     teamWebsite = mainTeam['website']
     rookieYear = mainTeam['rookie_year']
     teamdata = {'Nick name': nickName, 'Team website': teamWebsite, 'rookie year': rookieYear}
-
+    return teamdata
 def teamAge(rookieY):
     #clean this mess
     year = date.today().year
     Age = rookieY - year
-
-def dataAnalysis():
-    teamAge()
-    number = getTeamNumber()
-    getTeamData(number)
-    get2017Data(number)
-    g_score = rookieYear + getRank + getWins
+    return Age
+def dataAnalysis(age, rank, wins, DQ, loses):
+    g_score = age + getRank + getWins
     b_score = getDQ + getLoses
     score = g_score - b_score
+    return score
     #^^ this just basic for testing
 if __name__ == '__main__':
     get_credentials()
     teamDictMaker()
+    print (get2017Data(6325))
+    print (getTeamData(6325))
+    print (teamAge(getTeamData(teamdata['rookie year']))
