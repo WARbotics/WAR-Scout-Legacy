@@ -25,7 +25,7 @@ event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
 x = 0 #Do not change
 infinite = 0 #No not change
-
+#test
 def get_credentials():
 
     home_dir = os.path.expanduser('~')
