@@ -24,7 +24,7 @@ lastyear = year - 1
 event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
 x = 0 #Do not change
-infinite = 0 #No not change
+infinite = 0 #No not changeWAR
 
 def get_credentials():
 
