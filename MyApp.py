@@ -25,7 +25,7 @@ event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
 x = 0 #Do not change
 infinite = 0 #No not change
-#test
+
 def get_credentials():
 
     home_dir = os.path.expanduser('~')
@@ -103,27 +103,54 @@ def getScoutingData():
         add = {'Auto Actions':(getList(1)[x]), 'autoHighGoals':(getList(2)[x]), 'autoLowGoals':(getList(3)[x]), 'teleopHighGoals':(getList(4)[x]),
                'teleopLowGoals':(getList(5)[x]), 'usefull':(getList(6)[x]),
                'rating':(getList(7)[x]), 'climb':(getList(8)[x]),
-               'fouls':(getList(9)[x]),
-               'DQs':(getHistoricData(int(getTeamNumber()[x]))['DQ']),
-               'Ranking':(getHistoricData(int(getTeamNumber()[x]))['Ranking']),
-               'Win/Loss Ratio':(getHistoricData(int(getTeamNumber()[x]))['Win Loss Ratio']),
-               'Matches Played':(getHistoricData(int(getTeamNumber()[x]))['Matches Played'])}
+               'fouls':(getList(9)[x])}
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
         scoutingData = {}
+    x = 0
+    #for x in range(0, (len(getTeamNumber()))):
     return(scoutingDataList)
 
+def perCal(y):
+    per = y/len(getTeamNumber())
+    per = per * 100
+    round(per,0)
+    per = int(per)
+    per = (str(per)+'%')
+    return(per)
+
+
 def teamDictMaker():
-    #Puts all the Team Information into a dictionary
+    scoutingData = getScoutingData()
+    #Puts all the T.eam Information into a dictionary
     x = 0
     global teamDict
     teamDict = {}
+    teamList = getTeamNumber()
+    checked = []
     getSheet()
     #Updates Information
-    for x in range(0, len(getTeamNumber())):
-        add = {(getTeamNumber()[x]): (getScoutingData()[x])}
+    for x in range(0, len(teamList)):
+        if teamList[x] in checked:
+            add2 = scoutingData[x]
+            add1 = teamDict[teamList[x]]
+            add3 = {
+            'Auto Actions':((add1['Auto Actions'])+'; '+(add2['Auto Actions'])),
+            'autoHighGoals':(str(int((add1['autoHighGoals']))+(int(add2['autoHighGoals'])))),
+            'autoLowGoals':(str(int((add1['autoLowGoals']))+(int(add2['autoLowGoals'])))),
+            'teleopHighGoals':(str(int((add1['teleopHighGoals']))+(int(add2['teleopHighGoals'])))),
+            'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
+            'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
+            'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
+            'climb':((add1['climb'])+'; '+(add2['climb'])),
+            'fouls':((add1['fouls'])+'; '+(add2['fouls']))}
+            add = {teamList[x]: (add3)}
+        else:
+            checked.append(teamList[x])
+            add = {(teamList[x]): (scoutingData[x])}
         teamDict.update(add)
     return(teamDict)
+
 
 def getHistoricData(teamBlankNumber):
     eventdata = tba.event_teams(lastevent, True, True)
@@ -202,7 +229,7 @@ def weightActive():
                 weightAutoActions = weightAutoActions + 20
             getAutoHighGoal = int(teamDict[getTeamNumber()[x]]['autoHighGoals'])
             if getAutoHighGoal >= 1:
-                weightAutoHighGoal = getAutoHighGoal * 10
+                weightAutoHighGoal = getAutoHighGoal * 11
                 if getAutoActions == 'Placed Cube on Scale':
                     weightAutoActions = weightAutoActions + 30
             getAutoLowGoals = int(teamDict[getTeamNumber()[x]]['autoLowGoals'])
@@ -213,19 +240,19 @@ def weightActive():
         #Teleop data weighting
         getTeleopHighGoals = int(teamDict[getTeamNumber()[x]]['teleopHighGoals'])
         if getTeleopHighGoals >= 1:
-            getTeleopHighGoals * 4
+            getTeleopHighGoals * 6
         else:
             getTeleopHighGoals = 0
         getTeleopLowGoals = int(teamDict[getTeamNumber()[x]]['teleopLowGoals'])
         if getTeleopLowGoals >= 1:
-            getTeleopLowGoals * 2
+            getTeleopLowGoals * 3
         else:
             getTeleopLowGoals = 0
         getUsefull = int(teamDict[getTeamNumber()[x]]['usefull'])
         getUsefull = getUsefull * 10
         getClimbStatus = teamDict[getTeamNumber()[x]]['climb']
         if getClimbStatus == 'Yes':
-            weightClimber = 15
+            weightClimber = 30
         else:
             weightClimber = 0
 
@@ -234,19 +261,12 @@ def weightActive():
     return(weightActiveList)
 
 def dataAnalysis():
+    weights = weightActive()
     x = 0
     score = 0
     scoreList = []
     for x in range(0, len(getTeamNumber())):
-        H = weightHistory()[x]
-        if H == 'No HIS':
-            H = 0
-        else:
-            H = int(H)
-        A = int(weightActive()[x])
-        H = H/.1
-        A = A/.9
-        score = H + A
+        score = int(weights[x])
         round(score,0)
         score = int(score)
         score = str(score)
@@ -259,30 +279,23 @@ def getLeaderboard():
         add = {(getTeamNumber()[x]): (dataAnalysis()[x])}
         getLeaderboard.update(add)
     return(getLeaderboard)
-def leaderBoard():
+
+
+def finalPrint():
+    leaderboard = getLeaderboard()
+    print()
+    checked = []
     for x in range(0, len(getTeamNumber())):
-        dataScore = getLeaderboard()
-        print (dataScore[getTeamNumber()[x]])
-        df = pd.DataFrame({'Team Number': getTeamNumber()[x], 'Score': dataScore())
-    return df
-
-def dataTable():
-    #broken mess fix latr
-    y = 0
-    x = 0
-    r = 0
-    for y in range(0, len(getTeamNumber())):
-        team = dataAnalysis()
-        if team == getTeamNumber()[x]:
-            data = dataAnalysis().score[y]['']
-
-
-
+        if getTeamNumber()[x] in checked:
+            continue
+        print(getTeamNumber()[x] + '    ' + (leaderboard[getTeamNumber()[x]]))
+        checked.append(getTeamNumber()[x])
 
 
 if __name__ == '__main__':
     get_credentials()
     getSheet()
+    print(getTeamNumber().count('5651'))
+    print(getTeamNumber())
     teamDictMaker()
-    print(getLeaderboard())
-    print (leaderBoard())
+    #finalPrint()
