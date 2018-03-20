@@ -89,7 +89,7 @@ def getList(get): #Gathers Information to make a list
     newList.append(findInfo(newList, get))
     del newList[len(newList)-1]
     return(newList)
-def getTeamNumber(): #Makes a list of team information gathered while scouting
+def getTeamNumber(): #Makes a list of teams scouted
     teamList = []
     teamList.append(findInfo(teamList, 0))
     del teamList[len(teamList)-1]
@@ -138,16 +138,20 @@ def teamDictMaker():
         if teamList[x] in checked:
             add2 = scoutingData[x]
             add1 = teamDict[teamList[x]]
+            climbList = [add2['climb']]
+            autoActionList = [add2['Auto Actions']]
+            climbList.append(add2['climb'])
+            autoActionList.append(add2['Auto Actions'])
             add3 = {
-            'Auto Actions':((add1['Auto Actions'])+'; '+(add2['Auto Actions'])),
+            'Auto Actions':[autoActionList],
             'teleopHighGoals':(str(int((add1['teleopHighGoals']))+(int(add2['teleopHighGoals'])))),
             'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
             'vaults':(str(int((add1['vaults']))+(int(add2['vaults'])))),
             'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
             'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
-            'climb':((add1['climb'])+'; '+(add2['climb'])),
-            'responses':((add1['response'])+'; '+(add2['response'])),
-            'matchesRec':(int(checked.count(teamList[x])))}
+            'climb':[climbList],
+            'response':((add1['response'])+'; '+(add2['response'])),
+            'matchesRec':(str(int(checked.count(teamList[x]))))}
             checked.append(teamList[x])
             add = {teamList[x]: (add3)}
         else:
@@ -161,7 +165,7 @@ def teamDictMaker():
             'usefull':(y['usefull']),
             'rating':(y['rating']),
             'climb':(y['climb']),
-            'responses':(y['response']),
+            'response':(y['response']),
             'matchesRec':(1)}
             add = {(teamList[x]): (add2)}
         teamDict.update(add)
@@ -231,55 +235,70 @@ def weightHistory():
             weightHistoryList.append(history)
     return(weightHistoryList)
 
+def whole(y):
+    round(y,0)
+    int(y)
+    return(y)
+
 def weightActive():
     weightActiveList = []
     for x in range(0, len(getTeamNumber())):
         weightAutoActions = 0
-        weightAutoHighGoal = 0
-        weightAutoLowGoals = 0
-        weightAutoPlaced = 0
-        weightClimber = 0
-        weightVaults = 0
-        matches = teamDict[getTeamNumber()[x]]['matchesRec']
-        getAutoActions = teamDict[getTeamNumber()[x]]['Auto Actions']
-        getTeleopHighGoals = int(teamDict[getTeamNumber()[x]]['teleopHighGoals'])
-        getTeleopLowGoals = int(teamDict[getTeamNumber()[x]]['teleopLowGoals'])
-        getUsefull = int(teamDict[getTeamNumber()[x]]['usefull'])
-        getClimbStatus = teamDict[getTeamNumber()[x]]['climb']
+        teamList = getTeamNumber()[x]
+        matches = int(teamDict[teamList]['matchesRec'])
+        getAutoActions = teamDict[teamList]['Auto Actions']
+        getTeleopHighGoals = int(teamDict[teamList]['teleopHighGoals'])
+        getTeleopLowGoals = int(teamDict[teamList]['teleopLowGoals'])
+        getUsefull = int(teamDict[teamList]['usefull'])
+        climbList = teamDict[teamList]['climb']
+        getVaults = int(teamDict[teamList]['vaults'])
+        getRating = int(teamDict[teamList]['rating'])
 
-#        if getAutoActions == 'Crossed A-Line':
-#            if getAutoActions == 'Placed Cube on Switch':
-#                weightAutoActions = weightAutoActions + 20
-#            getAutoHighGoal = int(teamDict[getTeamNumber()[x]]['autoHighGoals'])
-#            if getAutoHighGoal >= 1:
-#                weightAutoHighGoal = getAutoHighGoal * 11
-#                if getAutoActions == 'Placed Cube on Scale':
-#                    weightAutoActions = weightAutoActions + 30
-#            getAutoLowGoals = int(teamDict[getTeamNumber()[x]]['autoLowGoals'])
-#            if getAutoLowGoals >= 1:
-#                weightAutoLowGoals = getAutoLowGoals * 10
-#                if getAutoActions == 'Placed Cube on Switch':
-#                    weightAutoActions = weightAutoActions + 20
+        #Auto Data weighting
+        if len(getAutoActions) >= 1:
+            if getAutoActions == 'Crossed A-Line':
+                weightAutoActions = 5
+            elif getAutoActions == 'Crossed A-Line, Placed Cube on Switch':
+                weightAutoActions = 15
+            elif getAutoActions == 'Crossed A-Line, Placed Cube on Scale':
+                weightAutoActions = 20
+
         #Teleop data weighting
-
         if getTeleopHighGoals >= 1:
             getTeleopHighGoals / matches
+            getTeleopHighGoals = whole(getTeleopHighGoals)
             getTeleopHighGoals * 6
         else:
             getTeleopHighGoals = 0
-
         if getTeleopLowGoals >= 1:
             getTeleopLowGoals / matches
-            getTeleopLowGoals * 3
+            getTeleopLowGoals = whole(getTeleopLowGoals)
+            getTeleopLowGoals * 4
         else:
             getTeleopLowGoals = 0
+        if getVaults >= 1:
+            getVaults / matches
+            getVaults = whole(getVaults)
+            getVaults * 2
+
         getUsefull = getUsefull / matches
-        if getClimbStatus == 'Yes':
-            weightClimber = 30
+        getUsefull = whole(getUsefull)
+        getRating = getRating / matches
+        getRating = whole(getRating)
+
+        if climbList.count('Yes') >= 1:
+            weightClimber = (((climbList.count('Yes'))*(15))/(matches))
         else:
             weightClimber = 0
 
-        active = (int(weightAutoActions) + int(getTeleopHighGoals) + int(getTeleopLowGoals) + int(getUsefull) + int(weightClimber))
+        active = (
+        int(weightAutoActions) +
+        int(getRating) +
+        int(getTeleopHighGoals) +
+        int(getTeleopLowGoals) +
+        int(getUsefull) +
+        int(getVaults) +
+        int(weightClimber))
         weightActiveList.append(active)
     return(weightActiveList)
 
@@ -298,8 +317,9 @@ def dataAnalysis():
 
 def getLeaderboard():
     getLeaderboard = {}
+    data = dataAnalysis()
     for x in range(0, len(getTeamNumber())):
-        add = {(getTeamNumber()[x]): (dataAnalysis()[x])}
+        add = {(getTeamNumber()[x]): (data[x])}
         getLeaderboard.update(add)
     return(getLeaderboard)
 
