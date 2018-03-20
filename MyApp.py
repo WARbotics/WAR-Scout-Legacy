@@ -62,7 +62,7 @@ def getSheet(): #Scrapes information off of the quanatiative
     if not values:
         print('No data found.')
     for row in values:
-        for x in range(0, 10):
+        for x in range(0, 9):
             mainList.append(str(row[x]))
             x = x + 1
 
@@ -71,7 +71,7 @@ def findInfo(sendy, y): #Makes the List
     for infinite in range(0, 1000):
         try:
             sendy.append(mainList[x])
-            x = x + 10
+            x = x + 9
         except:
             return(sendy)
 
@@ -100,10 +100,14 @@ def getScoutingData():
     scoutingDataList = []
     x = 0
     for x in range(0, len(getTeamNumber())):
-        add = {'Auto Actions':(getList(1)[x]), 'autoHighGoals':(getList(2)[x]), 'autoLowGoals':(getList(3)[x]), 'teleopHighGoals':(getList(4)[x]),
-               'teleopLowGoals':(getList(5)[x]), 'usefull':(getList(6)[x]),
-               'rating':(getList(7)[x]), 'climb':(getList(8)[x]),
-               'fouls':(getList(9)[x])}
+        add = {'Auto Actions':(getList(1)[x]),
+        'teleopHighGoals':(getList(2)[x]),
+        'teleopLowGoals':(getList(3)[x]),
+        'vaults':(getList(4)[x]),
+        'usefull':(getList(5)[x]),
+        'rating':(getList(6)[x]),
+        'climb':(getList(7)[x]),
+        'response':(getList(8)[x])}
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
         scoutingData = {}
@@ -136,18 +140,30 @@ def teamDictMaker():
             add1 = teamDict[teamList[x]]
             add3 = {
             'Auto Actions':((add1['Auto Actions'])+'; '+(add2['Auto Actions'])),
-            'autoHighGoals':(str(int((add1['autoHighGoals']))+(int(add2['autoHighGoals'])))),
-            'autoLowGoals':(str(int((add1['autoLowGoals']))+(int(add2['autoLowGoals'])))),
             'teleopHighGoals':(str(int((add1['teleopHighGoals']))+(int(add2['teleopHighGoals'])))),
             'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
+            'vaults':(str(int((add1['vaults']))+(int(add2['vaults'])))),
             'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
             'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
             'climb':((add1['climb'])+'; '+(add2['climb'])),
-            'fouls':((add1['fouls'])+'; '+(add2['fouls']))}
+            'responses':((add1['response'])+'; '+(add2['response'])),
+            'matchesRec':(int(checked.count(teamList[x])))}
+            checked.append(teamList[x])
             add = {teamList[x]: (add3)}
         else:
             checked.append(teamList[x])
-            add = {(teamList[x]): (scoutingData[x])}
+            y = scoutingData[x]
+            add2 = {
+            'Auto Actions':(y['Auto Actions']),
+            'teleopHighGoals':(y['teleopHighGoals']),
+            'teleopLowGoals':(y['teleopLowGoals']),
+            'vaults':(y['vaults']),
+            'usefull':(y['usefull']),
+            'rating':(y['rating']),
+            'climb':(y['climb']),
+            'responses':(y['response']),
+            'matchesRec':(1)}
+            add = {(teamList[x]): (add2)}
         teamDict.update(add)
     return(teamDict)
 
@@ -223,34 +239,41 @@ def weightActive():
         weightAutoLowGoals = 0
         weightAutoPlaced = 0
         weightClimber = 0
+        weightVaults = 0
+        matches = teamDict[getTeamNumber()[x]]['matchesRec']
         getAutoActions = teamDict[getTeamNumber()[x]]['Auto Actions']
-        if getAutoActions == 'Crossed A-Line':
-            if getAutoActions == 'Placed Cube on Switch':
-                weightAutoActions = weightAutoActions + 20
-            getAutoHighGoal = int(teamDict[getTeamNumber()[x]]['autoHighGoals'])
-            if getAutoHighGoal >= 1:
-                weightAutoHighGoal = getAutoHighGoal * 11
-                if getAutoActions == 'Placed Cube on Scale':
-                    weightAutoActions = weightAutoActions + 30
-            getAutoLowGoals = int(teamDict[getTeamNumber()[x]]['autoLowGoals'])
-            if getAutoLowGoals >= 1:
-                weightAutoLowGoals = getAutoLowGoals * 10
-                if getAutoActions == 'Placed Cube on Switch':
-                    weightAutoActions = weightAutoActions + 20
-        #Teleop data weighting
         getTeleopHighGoals = int(teamDict[getTeamNumber()[x]]['teleopHighGoals'])
+        getTeleopLowGoals = int(teamDict[getTeamNumber()[x]]['teleopLowGoals'])
+        getUsefull = int(teamDict[getTeamNumber()[x]]['usefull'])
+        getClimbStatus = teamDict[getTeamNumber()[x]]['climb']
+
+#        if getAutoActions == 'Crossed A-Line':
+#            if getAutoActions == 'Placed Cube on Switch':
+#                weightAutoActions = weightAutoActions + 20
+#            getAutoHighGoal = int(teamDict[getTeamNumber()[x]]['autoHighGoals'])
+#            if getAutoHighGoal >= 1:
+#                weightAutoHighGoal = getAutoHighGoal * 11
+#                if getAutoActions == 'Placed Cube on Scale':
+#                    weightAutoActions = weightAutoActions + 30
+#            getAutoLowGoals = int(teamDict[getTeamNumber()[x]]['autoLowGoals'])
+#            if getAutoLowGoals >= 1:
+#                weightAutoLowGoals = getAutoLowGoals * 10
+#                if getAutoActions == 'Placed Cube on Switch':
+#                    weightAutoActions = weightAutoActions + 20
+        #Teleop data weighting
+
         if getTeleopHighGoals >= 1:
+            getTeleopHighGoals / matches
             getTeleopHighGoals * 6
         else:
             getTeleopHighGoals = 0
-        getTeleopLowGoals = int(teamDict[getTeamNumber()[x]]['teleopLowGoals'])
+
         if getTeleopLowGoals >= 1:
+            getTeleopLowGoals / matches
             getTeleopLowGoals * 3
         else:
             getTeleopLowGoals = 0
-        getUsefull = int(teamDict[getTeamNumber()[x]]['usefull'])
-        getUsefull = getUsefull * 10
-        getClimbStatus = teamDict[getTeamNumber()[x]]['climb']
+        getUsefull = getUsefull / matches
         if getClimbStatus == 'Yes':
             weightClimber = 30
         else:
@@ -288,14 +311,19 @@ def finalPrint():
     for x in range(0, len(getTeamNumber())):
         if getTeamNumber()[x] in checked:
             continue
-        print(getTeamNumber()[x] + '    ' + (leaderboard[getTeamNumber()[x]]))
-        checked.append(getTeamNumber()[x])
+        if int(getTeamNumber()[x]) > 999:
+            print(getTeamNumber()[x] + '    ' + (leaderboard[getTeamNumber()[x]]))
+            checked.append(getTeamNumber()[x])
+        elif int(getTeamNumber()[x]) <= 999:
+            print(getTeamNumber()[x] + '     ' + (leaderboard[getTeamNumber()[x]]))
+            checked.append(getTeamNumber()[x])
+        elif int(getTeamNumber()[x]) <= 9:
+            print(getTeamNumber()[x] + '      ' + (leaderboard[getTeamNumber()[x]]))
+            checked.append(getTeamNumber()[x])
 
 
 if __name__ == '__main__':
     get_credentials()
     getSheet()
-    print(getTeamNumber().count('5651'))
-    print(getTeamNumber())
     teamDictMaker()
-    #finalPrint()
+    finalPrint()
