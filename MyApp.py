@@ -136,23 +136,25 @@ def teamDictMaker():
     #Updates Information
     for x in range(0, len(teamList)):
         if teamList[x] in checked:
+            checked.append(teamList[x])
             add2 = scoutingData[x]
             add1 = teamDict[teamList[x]]
-            climbList = [add2['climb']]
-            autoActionList = [add2['Auto Actions']]
+            climbList = []
+            autoActionList = []
+            climbList.append(add1['climb'])
             climbList.append(add2['climb'])
+            autoActionList.append(add1['Auto Actions'])
             autoActionList.append(add2['Auto Actions'])
             add3 = {
-            'Auto Actions':[autoActionList],
+            'Auto Actions':autoActionList,
             'teleopHighGoals':(str(int((add1['teleopHighGoals']))+(int(add2['teleopHighGoals'])))),
             'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
             'vaults':(str(int((add1['vaults']))+(int(add2['vaults'])))),
             'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
             'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
-            'climb':[climbList],
+            'climb':climbList,
             'response':((add1['response'])+'; '+(add2['response'])),
             'matchesRec':(str(int(checked.count(teamList[x]))))}
-            checked.append(teamList[x])
             add = {teamList[x]: (add3)}
         else:
             checked.append(teamList[x])
@@ -242,6 +244,7 @@ def whole(y):
 
 def weightActive():
     weightActiveList = []
+    typeList = []
     for x in range(0, len(getTeamNumber())):
         weightAutoActions = 0
         teamList = getTeamNumber()[x]
@@ -249,19 +252,28 @@ def weightActive():
         getAutoActions = teamDict[teamList]['Auto Actions']
         getTeleopHighGoals = int(teamDict[teamList]['teleopHighGoals'])
         getTeleopLowGoals = int(teamDict[teamList]['teleopLowGoals'])
+        getVaults = int(teamDict[teamList]['vaults'])
         getUsefull = int(teamDict[teamList]['usefull'])
         climbList = teamDict[teamList]['climb']
-        getVaults = int(teamDict[teamList]['vaults'])
         getRating = int(teamDict[teamList]['rating'])
+        autoLow = getAutoActions.count('Crossed A-Line, Placed Cube on Switch')
+        autoHigh = getAutoActions.count('Crossed A-Line, Placed Cube on Scale')
+        autoCross = getAutoActions.count('Crossed A-Line')
 
         #Auto Data weighting
-        if len(getAutoActions) >= 1:
-            if getAutoActions == 'Crossed A-Line':
-                weightAutoActions = 5
-            elif getAutoActions == 'Crossed A-Line, Placed Cube on Switch':
-                weightAutoActions = 15
-            elif getAutoActions == 'Crossed A-Line, Placed Cube on Scale':
-                weightAutoActions = 20
+        if autoCross >= 1 or autoLow >= 1 or autoHigh >= 1:
+            if autoCross >= 1:
+                autoCross = ((autoCross+autoLow+autoHigh)/(matches))
+                if autoCross >= 0.75:
+                    weightAutoActions = weightAutoActions + 3
+            if autoLow >= 1:
+                autoLow = autoLow / matches
+                if autoLow >= 0.4:
+                    weightAutoActions = weightAutoActions + 6
+            if autoHigh >= 1:
+                autoHigh = autoHigh / matches
+                if autoHigh >= 0.15:
+                    weightAutoActions = weightAutoActions + 9
 
         #Teleop data weighting
         if getTeleopHighGoals >= 1:
@@ -287,10 +299,20 @@ def weightActive():
         getRating = whole(getRating)
 
         if climbList.count('Yes') >= 1:
-            weightClimber = (((climbList.count('Yes'))*(15))/(matches))
+            weightClimber = (((climbList.count('Yes'))*(7))/(matches))
         else:
             weightClimber = 0
 
+        #Type of Robot
+        if getTeleopHighGoals > getTeleopLowGoals:
+            if getTeleopHighGoals > getVaults:
+                type = 'High Goal Shooter'
+        if getTeleopLowGoals > getTeleopHighGoals:
+            if getTeleopLowGoals > getVaults:
+                type = 'Low Goal Shooter'
+        if getVaults > getTeleopHighGoals:
+            if getVaults > getTeleopLowGoals:
+                type = 'Vault Main'
         active = (
         int(weightAutoActions) +
         int(getRating) +
@@ -300,19 +322,34 @@ def weightActive():
         int(getVaults) +
         int(weightClimber))
         weightActiveList.append(active)
-    return(weightActiveList)
+        typeList.append(type)
+    return(weightActiveList, typeList)
 
 def dataAnalysis():
-    weights = weightActive()
+    aData = weightActive()
+    weights = aData[0]
+    typeList = aData[1]
     x = 0
     score = 0
     scoreList = []
     for x in range(0, len(getTeamNumber())):
         score = int(weights[x])
+        type = typeList[x]
+        response = teamDict[getTeamNumber()[x]]['response']
         round(score,0)
         score = int(score)
         score = str(score)
-        scoreList.append(score)
+        if int(score) <= 9:
+            finalList = ('Score: '+score+'     Type: '+type)
+        else:
+            finalList = ('Score: '+score+'    Type: '+type)
+        if type == 'High Goal Shooter':
+            finalList = (finalList+'    Response: '+response)
+        elif type == 'Low Goal Shooter':
+            finalList = (finalList+'     Response: '+response)
+        elif type == 'Vault Main':
+            finalList = (finalList+'            Response: '+response)
+        scoreList.append(finalList)
     return(scoreList)
 
 def getLeaderboard():
@@ -340,7 +377,7 @@ def finalPrint():
         elif int(getTeamNumber()[x]) <= 9:
             print(getTeamNumber()[x] + '      ' + (leaderboard[getTeamNumber()[x]]))
             checked.append(getTeamNumber()[x])
-
+        print()
 
 if __name__ == '__main__':
     get_credentials()
