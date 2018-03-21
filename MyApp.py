@@ -262,8 +262,8 @@ def weightActive():
 
         #Auto Data weighting
         if autoCross >= 1 or autoLow >= 1 or autoHigh >= 1:
+            autoCross = ((autoCross+autoLow+autoHigh)/(matches))
             if autoCross >= 1:
-                autoCross = ((autoCross+autoLow+autoHigh)/(matches))
                 if autoCross >= 0.75:
                     weightAutoActions = weightAutoActions + 3
             if autoLow >= 1:
@@ -273,19 +273,19 @@ def weightActive():
             if autoHigh >= 1:
                 autoHigh = autoHigh / matches
                 if autoHigh >= 0.15:
-                    weightAutoActions = weightAutoActions + 9
+                    weightAutoActions = weightAutoActions + 8
 
         #Teleop data weighting
         if getTeleopHighGoals >= 1:
             getTeleopHighGoals / matches
+            getTeleopHighGoals * 3.5
             getTeleopHighGoals = whole(getTeleopHighGoals)
-            getTeleopHighGoals * 6
         else:
             getTeleopHighGoals = 0
         if getTeleopLowGoals >= 1:
             getTeleopLowGoals / matches
             getTeleopLowGoals = whole(getTeleopLowGoals)
-            getTeleopLowGoals * 4
+            getTeleopLowGoals * 3
         else:
             getTeleopLowGoals = 0
         if getVaults >= 1:
@@ -299,7 +299,7 @@ def weightActive():
         getRating = whole(getRating)
 
         if climbList.count('Yes') >= 1:
-            weightClimber = (((climbList.count('Yes'))*(7))/(matches))
+            weightClimber = (((climbList.count('Yes'))*(4))/(matches))
         else:
             weightClimber = 0
 
