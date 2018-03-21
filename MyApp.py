@@ -348,7 +348,7 @@ def dataAnalysis():
         elif type == 'Low Goal Shooter':
             finalList = (finalList+'     Response: '+response)
         elif type == 'Vault Main':
-            finalList = (finalList+'            Response: '+response)
+            finalList = (finalList+'           Response: '+response)
         scoreList.append(finalList)
     return(scoreList)
 
