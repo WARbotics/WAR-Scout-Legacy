@@ -8,26 +8,27 @@ from oauth2client.file import Storage #Google API Stuff
 import tbapy #The blue alliance API
 import httplib2
 import os
-import requests
+import requests #Handels Http requests
 from datetime import datetime #Gets Date
+import operator
 # DATA
 import pandas as pd
 import numpy as np
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json' #Goto Google's API Dev
-APPLICATION_NAME = 'WARScout'
+APPLICATION_NAME = 'WARScout' #Name of Application
 key = "6ZS9aeVtUuidbC2byVYnLlAuIid60ipTXZbuWkGLffCTEY5nrMjdiV6EUUQTodmK" #TBA Key
 tba = tbapy.TBA(key)
 year = datetime.now().year #Gets Year
 lastyear = year - 1
 event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
+ror = 9
 x = 0 #Do not change
-infinite = 0 #No not change
 
 def get_credentials():
-
+    #Gets the credentials to run the Google API
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
@@ -43,7 +44,8 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def getSheet(): #Scrapes information off of the quanatiative
+def getSheet():
+    #Scrapes information off of the quanatiative
     global mainList
     mainList = []
 
@@ -62,16 +64,17 @@ def getSheet(): #Scrapes information off of the quanatiative
     if not values:
         print('No data found.')
     for row in values:
-        for x in range(0, 9):
+        for x in range(0, ror): #Range of Rows
             mainList.append(str(row[x]))
             x = x + 1
 
 def findInfo(sendy, y): #Makes the List
     x = y
-    for infinite in range(0, 1000):
+    z = 0 #No not change
+    for z in range(0, 5000):
         try:
             sendy.append(mainList[x])
-            x = x + 9
+            x = x + ror
         except:
             return(sendy)
 
@@ -126,7 +129,7 @@ def perCal(y):
 
 def teamDictMaker():
     scoutingData = getScoutingData()
-    #Puts all the T.eam Information into a dictionary
+    #Puts all the Team Information into a dictionary
     x = 0
     global teamDict
     teamDict = {}
@@ -175,6 +178,7 @@ def teamDictMaker():
 
 
 def getHistoricData(teamBlankNumber):
+    #Collects Historic Data
     eventdata = tba.event_teams(lastevent, True, True)
     teamsAtEvent = len(eventdata)
     ranking = tba.event_rankings(lastevent)
@@ -207,11 +211,11 @@ def getTeamData(teamNumber):
     #broken
     return teamdata
 def teamAge(rookieY):
-    #clean this mess
     year = date.today().year
     Age = rookieY - year
     return Age
 def weightHistory():
+    #Gives weights to all data collected historicaly
     weightHistoryList = []
     for x in range(0, len(getTeamNumber())):
         getDQ = teamDict[getTeamNumber()[x]]['DQs']
@@ -243,6 +247,7 @@ def whole(y):
     return(y)
 
 def weightActive():
+    #Gives a weights to all data collected activley
     weightActiveList = []
     typeList = []
     for x in range(0, len(getTeamNumber())):
@@ -331,7 +336,7 @@ def dataAnalysis():
     typeList = aData[1]
     x = 0
     score = 0
-    scoreList = []
+    printData = []
     for x in range(0, len(getTeamNumber())):
         score = int(weights[x])
         type = typeList[x]
@@ -339,18 +344,12 @@ def dataAnalysis():
         round(score,0)
         score = int(score)
         score = str(score)
-        if int(score) <= 9:
-            finalList = ('Score: '+score+'     Type: '+type)
-        else:
-            finalList = ('Score: '+score+'    Type: '+type)
-        if type == 'High Goal Shooter':
-            finalList = (finalList+'    Response: '+response)
-        elif type == 'Low Goal Shooter':
-            finalList = (finalList+'     Response: '+response)
-        elif type == 'Vault Main':
-            finalList = (finalList+'           Response: '+response)
-        scoreList.append(finalList)
-    return(scoreList)
+        add = {
+        'score':(int(score)),
+        'type':(type),
+        'response':(response)}
+        printData.append(add)
+    return(printData)
 
 def getLeaderboard():
     getLeaderboard = {}
@@ -362,22 +361,19 @@ def getLeaderboard():
 
 
 def finalPrint():
+    #Prints all the data collected
     leaderboard = getLeaderboard()
+    data = []
+    for x in range (0, len(getTeamNumber())):
+        score = (str(leaderboard[getTeamNumber()[x]]['score']))
+        type = (str(leaderboard[getTeamNumber()[x]]['type']))
+        response = (str(leaderboard[getTeamNumber()[x]]['response']))
+        add = [score,type,response]
+        data.append(add)
+    df = pd.DataFrame(data,index=[getTeamNumber()],columns=['Score','Type','Reponse'])
+    print(df)
     print()
-    checked = []
-    for x in range(0, len(getTeamNumber())):
-        if getTeamNumber()[x] in checked:
-            continue
-        if int(getTeamNumber()[x]) > 999:
-            print(getTeamNumber()[x] + '    ' + (leaderboard[getTeamNumber()[x]]))
-            checked.append(getTeamNumber()[x])
-        elif int(getTeamNumber()[x]) <= 999:
-            print(getTeamNumber()[x] + '     ' + (leaderboard[getTeamNumber()[x]]))
-            checked.append(getTeamNumber()[x])
-        elif int(getTeamNumber()[x]) <= 9:
-            print(getTeamNumber()[x] + '      ' + (leaderboard[getTeamNumber()[x]]))
-            checked.append(getTeamNumber()[x])
-        print()
+    print('All Data Collected by Team 6925\'s scouts.')
 
 if __name__ == '__main__':
     get_credentials()
