@@ -13,6 +13,8 @@ from datetime import datetime #Gets Date
 # DATA
 import pandas as pd
 import numpy as np
+pd.set_option('display.max_rows', 10000)
+pd.set_option('display.max_columns', 10000)
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json' #Goto Google's API Dev
@@ -281,29 +283,24 @@ def weightActive():
 
         #Teleop data weighting
         if getTeleopHighGoals >= 1:
-            getTeleopHighGoals / matches
-            getTeleopHighGoals * 3.5
-            getTeleopHighGoals = whole(getTeleopHighGoals)
+            getTeleopHighGoals =  getTeleopHighGoals / matches
+            getTeleopHighGoals =  getTeleopHighGoals * 3.5
         else:
             getTeleopHighGoals = 0
         if getTeleopLowGoals >= 1:
-            getTeleopLowGoals / matches
-            getTeleopLowGoals = whole(getTeleopLowGoals)
-            getTeleopLowGoals * 3
+            getTeleopLowGoals = getTeleopLowGoals / matches
+            getTeleopLowGoals = getTeleopLowGoals * 3
         else:
             getTeleopLowGoals = 0
         if getVaults >= 1:
-            getVaults / matches
-            getVaults = whole(getVaults)
-            getVaults * 2
+            getVaults = getVaults / matches
+            getVaults = getVaults * 2
 
-        getUsefull = getUsefull / matches
-        getUsefull = whole(getUsefull) - 1
-        getRating = getRating / matches
-        getRating = whole(getRating) - 2
+        getUsefull = ((getUsefull / matches)-1)
+        getRating = ((getRating / matches)-2)
 
         if climbList.count('Yes') >= 1:
-            weightClimber = (((climbList.count('Yes'))*(4))/(matches))
+            weightClimber = (((climbList.count('Yes'))*(6))/(matches))
         else:
             weightClimber = 0
 
@@ -331,6 +328,7 @@ def weightActive():
         int(weightClimber))
         if active < 0:
             active = 0
+        active = whole(active)
         weightActiveList.append(active)
         typeList.append(type)
     return(weightActiveList, typeList)
