@@ -10,7 +10,6 @@ import httplib2
 import os
 import requests #Handels Http requests
 from datetime import datetime #Gets Date
-import operator
 # DATA
 import pandas as pd
 import numpy as np
@@ -24,7 +23,7 @@ year = datetime.now().year #Gets Year
 lastyear = year - 1
 event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
-ror = 9
+ror = 9 #How many questions asked
 x = 0 #Do not change
 
 def get_credentials():
@@ -332,6 +331,7 @@ def weightActive():
 
 def dataAnalysis():
     aData = weightActive()
+    #hData = weightHistory()
     weights = aData[0]
     typeList = aData[1]
     x = 0
@@ -352,6 +352,7 @@ def dataAnalysis():
     return(printData)
 
 def getLeaderboard():
+    #Creates a leaderboard
     getLeaderboard = {}
     data = dataAnalysis()
     for x in range(0, len(getTeamNumber())):
@@ -361,7 +362,7 @@ def getLeaderboard():
 
 
 def finalPrint():
-    #Prints all the data collected
+    #Puts all data collected in a Panda Dataframe
     leaderboard = getLeaderboard()
     data = []
     for x in range (0, len(getTeamNumber())):
