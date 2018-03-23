@@ -115,8 +115,6 @@ def getScoutingData():
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
         scoutingData = {}
-    x = 0
-    #for x in range(0, (len(getTeamNumber()))):
     return(scoutingDataList)
 
 def perCal(y):
@@ -273,9 +271,18 @@ def weightActive():
         if getTeleopLowGoals > getTeleopHighGoals:
             if getTeleopLowGoals > getVaults:
                 type = 'Low Goal Shooter'
-        if (getVaults*0.85) > getTeleopHighGoals:
-            if (getVaults*0.85) > getTeleopLowGoals:
+        if getVaults > getTeleopHighGoals:
+            if getVaults > getTeleopLowGoals:
                 type = 'Vault Main'
+        if getTeleopLowGoals == getTeleopHighGoals:
+            type = 'High & Low Shooter'
+        if getTeleopLowGoals == getVaults:
+            type = 'Vault & Low Goal Shooter'
+        if getTeleopHighGoals == getVaults:
+            type = 'Vault & High Goal Shooter'
+        if getTeleopLowGoals == getTeleopHighGoals:
+            if getTeleopLowGoals == getVaults:
+                type = 'Mix'
         if getVaults == 0:
             if getTeleopHighGoals == 0:
                 if getTeleopLowGoals == 0:
