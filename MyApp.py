@@ -266,6 +266,21 @@ def weightActive():
         autoHigh = getAutoActions.count('Placed Cube on Scale')
         autoCross = getAutoActions.count('Crossed A-Line')
 
+        #Type of Robot
+        if getTeleopHighGoals > getTeleopLowGoals:
+            if getTeleopHighGoals > getVaults:
+                type = 'High Goal Shooter'
+        if getTeleopLowGoals > getTeleopHighGoals:
+            if getTeleopLowGoals > getVaults:
+                type = 'Low Goal Shooter'
+        if (getVaults*0.85) > getTeleopHighGoals:
+            if (getVaults*0.85) > getTeleopLowGoals:
+                type = 'Vault Main'
+        if getVaults == 0:
+            if getTeleopHighGoals == 0:
+                if getTeleopLowGoals == 0:
+                    type = 'Vegetable'
+
         #Auto Data weighting
         if autoCross >= 1 or autoLow >= 1 or autoHigh >= 1:
             autoCross = ((autoCross+autoLow+autoHigh)/(matches))
@@ -291,7 +306,7 @@ def weightActive():
         else:
             getTeleopLowGoals = 0
         if getVaults >= 1:
-            getVaults = ((getVaults / matches)*2)
+            getVaults = ((getVaults / matches)*1.75)
 
         getUsefull = ((getUsefull / matches)-1)
         getRating = ((getRating / matches)-2)
@@ -301,20 +316,6 @@ def weightActive():
         else:
             weightClimber = 0
 
-        #Type of Robot
-        if getTeleopHighGoals > getTeleopLowGoals:
-            if getTeleopHighGoals > getVaults:
-                type = 'High Goal Shooter'
-        if getTeleopLowGoals > getTeleopHighGoals:
-            if getTeleopLowGoals > getVaults:
-                type = 'Low Goal Shooter'
-        if getVaults > getTeleopHighGoals:
-            if getVaults > getTeleopLowGoals:
-                type = 'Vault Main'
-        if getVaults == 0:
-            if getTeleopHighGoals == 0:
-                if getTeleopLowGoals == 0:
-                    type = 'Vegetable'
         active = (
         int(weightAutoActions) +
         int(getRating) +
@@ -325,6 +326,7 @@ def weightActive():
         int(weightClimber))
         if active < 0:
             active = 0
+            type = 'Vegetable'
         active = whole(active)
         weightActiveList.append(active)
         typeList.append(type)
