@@ -260,8 +260,8 @@ def weightActive():
         getUsefull = int(teamDict[teamList]['usefull'])
         climbList = teamDict[teamList]['climb']
         getRating = int(teamDict[teamList]['rating'])
-        autoLow = getAutoActions.count('Crossed A-Line, Placed Cube on Switch')
-        autoHigh = getAutoActions.count('Crossed A-Line, Placed Cube on Scale')
+        autoLow = getAutoActions.count('Placed Cube on Switch')
+        autoHigh = getAutoActions.count('Placed Cube on Scale')
         autoCross = getAutoActions.count('Crossed A-Line')
 
         #Auto Data weighting
@@ -298,9 +298,9 @@ def weightActive():
             getVaults * 2
 
         getUsefull = getUsefull / matches
-        getUsefull = whole(getUsefull)
+        getUsefull = whole(getUsefull) - 1
         getRating = getRating / matches
-        getRating = whole(getRating)
+        getRating = whole(getRating) - 2
 
         if climbList.count('Yes') >= 1:
             weightClimber = (((climbList.count('Yes'))*(4))/(matches))
@@ -317,6 +317,10 @@ def weightActive():
         if getVaults > getTeleopHighGoals:
             if getVaults > getTeleopLowGoals:
                 type = 'Vault Main'
+        if getVaults == 0:
+            if getTeleopHighGoals == 0:
+                if getTeleopLowGoals == 0:
+                    type = 'Vegetable'
         active = (
         int(weightAutoActions) +
         int(getRating) +
@@ -325,6 +329,8 @@ def weightActive():
         int(getUsefull) +
         int(getVaults) +
         int(weightClimber))
+        if active < 0:
+            active = 0
         weightActiveList.append(active)
         typeList.append(type)
     return(weightActiveList, typeList)
@@ -354,10 +360,12 @@ def dataAnalysis():
 def getLeaderboard():
     #Creates a leaderboard
     getLeaderboard = {}
+    checked = []
     data = dataAnalysis()
     for x in range(0, len(getTeamNumber())):
         add = {(getTeamNumber()[x]): (data[x])}
         getLeaderboard.update(add)
+        checked.append(getTeamNumber()[x])
     return(getLeaderboard)
 
 
@@ -365,13 +373,18 @@ def finalPrint():
     #Puts all data collected in a Panda Dataframe
     leaderboard = getLeaderboard()
     data = []
+    checked = []
     for x in range (0, len(getTeamNumber())):
-        score = (str(leaderboard[getTeamNumber()[x]]['score']))
-        type = (str(leaderboard[getTeamNumber()[x]]['type']))
-        response = (str(leaderboard[getTeamNumber()[x]]['response']))
+        if getTeamNumber()[x] in checked:
+            continue
+        checked.append(getTeamNumber()[x])
+    for x in range (0, len(checked)):
+        score = (str(leaderboard[checked[x]]['score']))
+        type = (str(leaderboard[checked[x]]['type']))
+        response = (str(leaderboard[checked[x]]['response']))
         add = [score,type,response]
         data.append(add)
-    df = pd.DataFrame(data,index=[getTeamNumber()],columns=['Score','Type','Reponse'])
+    df = pd.DataFrame(data,index=[checked],columns=['Score','Type','Reponse'])
     print(df)
     print()
     print('All Data Collected by Team 6925\'s scouts.')
