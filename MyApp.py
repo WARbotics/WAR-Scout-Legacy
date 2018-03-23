@@ -283,18 +283,15 @@ def weightActive():
 
         #Teleop data weighting
         if getTeleopHighGoals >= 1:
-            getTeleopHighGoals =  getTeleopHighGoals / matches
-            getTeleopHighGoals =  getTeleopHighGoals * 3.5
+            getTeleopHighGoals =  ((getTeleopHighGoals / matches)*3.5)
         else:
             getTeleopHighGoals = 0
         if getTeleopLowGoals >= 1:
-            getTeleopLowGoals = getTeleopLowGoals / matches
-            getTeleopLowGoals = getTeleopLowGoals * 3
+            getTeleopLowGoals = ((getTeleopLowGoals / matches)*3)
         else:
             getTeleopLowGoals = 0
         if getVaults >= 1:
-            getVaults = getVaults / matches
-            getVaults = getVaults * 2
+            getVaults = ((getVaults / matches)*2)
 
         getUsefull = ((getUsefull / matches)-1)
         getRating = ((getRating / matches)-2)
