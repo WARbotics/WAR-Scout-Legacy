@@ -19,8 +19,7 @@ pd.set_option('display.max_columns', 10000)
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json' #Goto Google's API Dev
 APPLICATION_NAME = 'WARScout' #Name of Application
-key = "6ZS9aeVtUuidbC2byVYnLlAuIid60ipTXZbuWkGLffCTEY5nrMjdiV6EUUQTodmK" #TBA Key
-tba = tbapy.TBA(key)
+tba = tbapy.TBA('6ZS9aeVtUuidbC2byVYnLlAuIid60ipTXZbuWkGLffCTEY5nrMjdiV6EUUQTodmK')
 year = datetime.now().year #Gets Year
 lastyear = year - 1
 event = str(year) + 'gagr'
@@ -100,10 +99,10 @@ def getTeamNumber(): #Makes a list of teams scouted
     return(teamList)
 
 def getScoutingData():
-    scoutingData = {}
     scoutingDataList = []
     x = 0
     for x in range(0, len(getTeamNumber())):
+        scoutingData = {}
         add = {'Auto Actions':(getList(1)[x]),
         'teleopHighGoals':(getList(2)[x]),
         'teleopLowGoals':(getList(3)[x]),
@@ -114,7 +113,6 @@ def getScoutingData():
         'response':(getList(8)[x])}
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
-        scoutingData = {}
     return(scoutingDataList)
 
 def perCal(y):
@@ -268,12 +266,21 @@ def weightActive():
         if getTeleopHighGoals > getTeleopLowGoals:
             if getTeleopHighGoals > getVaults:
                 type = 'High Goal Shooter'
+                if (getTeleopHighGoals-3) > getVaults:
+                    if (getTeleopHighGoals-3) > getTeleopLowGoals:
+                        type = 'Hard High Shooter'
         if getTeleopLowGoals > getTeleopHighGoals:
             if getTeleopLowGoals > getVaults:
                 type = 'Low Goal Shooter'
+                if (getTeleopLowGoals-4) > getTeleopHighGoals:
+                    if (getTeleopLowGoals-4) > getVaults:
+                        type = 'Hard Low Shooter'
         if getVaults > getTeleopHighGoals:
             if getVaults > getTeleopLowGoals:
                 type = 'Vault Main'
+                if (getVaults-4) > getTeleopHighGoals:
+                    if (getVaults-4) > getTeleopLowGoals:
+                        type = 'Hard Vault Main'
         if getTeleopLowGoals == getTeleopHighGoals:
             type = 'High & Low Shooter'
         if getTeleopLowGoals == getVaults:
@@ -303,17 +310,8 @@ def weightActive():
                 if autoHigh >= 0.15:
                     weightAutoActions = weightAutoActions + 8
 
-        #Teleop data weighting
-        if getTeleopHighGoals >= 1:
-            getTeleopHighGoals =  ((getTeleopHighGoals / matches)*3.5)
-        else:
-            getTeleopHighGoals = 0
-        if getTeleopLowGoals >= 1:
-            getTeleopLowGoals = ((getTeleopLowGoals / matches)*3)
-        else:
-            getTeleopLowGoals = 0
-        if getVaults >= 1:
-            getVaults = ((getVaults / matches)*1.75)
+        if (getVaults+getTeleopLowGoals+getTeleopHighGoals) >= 1:
+            teleopScore = (((getVaults*1.75)+(getTeleopLowGoals*3)+(getTeleopHighGoals*3.5))/matches)
 
         getUsefull = ((getUsefull / matches)-1)
         getRating = ((getRating / matches)-2)
@@ -325,11 +323,9 @@ def weightActive():
 
         active = (
         int(weightAutoActions) +
-        int(getRating) +
-        int(getTeleopHighGoals) +
-        int(getTeleopLowGoals) +
+        int(teleopScore) +
         int(getUsefull) +
-        int(getVaults) +
+        int(getRating) +
         int(weightClimber))
         if active < 0:
             active = 0
