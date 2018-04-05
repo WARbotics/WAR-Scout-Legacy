@@ -98,11 +98,13 @@ def getList(get): #Gathers Information to make a list
     newList.append(findInfo(newList, get))
     del newList[len(newList)-1]
     return(newList)
+
 def getTeamNumber(): #Makes a list of teams scouted
     teamList = []
     teamList.append(findInfo(teamList, 0))
     del teamList[len(teamList)-1]
     return(teamList)
+
 def singleTeamList():
     teamList = getTeamNumber()
     checked = []
@@ -203,7 +205,6 @@ def teamDictMaker():
         teamDict.update(add)
     return(teamDict)
 
-
 def getHistoricData(teamBlankNumber):
     #Collects Historic Data
     eventdata = tba.event_teams(lastevent, True, True)
@@ -237,10 +238,12 @@ def getTeamData(teamNumber):
     teamdata = {'Nick name': nickName, 'Team website': teamWebsite, 'rookie year': rookieYear}
     #broken
     return teamdata
+
 def teamAge(rookieY):
     year = date.today().year
     Age = rookieY - year
     return Age
+
 def weightHistory():
     #Gives weights to all data collected historicaly
     weightHistoryList = []
@@ -315,7 +318,7 @@ def weightActive():
         getTeleopHighGoals = int(teamDict[teamList]['teleopHighGoals'])
         getTeleopLowGoals = int(teamDict[teamList]['teleopLowGoals'])
         getVaults = int(teamDict[teamList]['vaults'])
-        getUsefull = int(teamDict[teamList]['usefull'])
+        getUsefull = int(teamDict[teamList] ['usefull'])
         climbList = teamDict[teamList]['climb']
         getRating = int(teamDict[teamList]['rating'])
         autoLow = getAutoActions.count('Placed Cube on Switch')
@@ -477,8 +480,8 @@ def finalPrint():
     print(df)
     print()
     print('All Data Collected by Team 6925\'s scouts.')
-    print('Lookup more Information')
     for x in range (100):
+        print('Lookup more Information')
         print()
         lookup = input('Team #: ')
         try:
