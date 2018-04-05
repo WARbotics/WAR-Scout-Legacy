@@ -271,11 +271,13 @@ def weightActive():
     #Gives a weights to all data collected activley
     weightActiveList = []
     typeList = []
+    playList = []
     for x in range(0, len(getTeamNumber())):
         weightAutoActions = 0
         teamList = getTeamNumber()[x]
         matches = int(teamDict[teamList]['matchesRec'])
         getAutoActions = teamDict[teamList]['Auto Actions']
+        playLists = teamDict[teamList]['playStyles']
         getTeleopHighGoals = int(teamDict[teamList]['teleopHighGoals'])
         getTeleopLowGoals = int(teamDict[teamList]['teleopLowGoals'])
         getVaults = int(teamDict[teamList]['vaults'])
@@ -285,6 +287,23 @@ def weightActive():
         autoLow = getAutoActions.count('Placed Cube on Switch')
         autoHigh = getAutoActions.count('Placed Cube on Scale')
         autoCross = getAutoActions.count('Crossed A-Line')
+        aggressivePlays = playLists.count('Agressive')
+        defensivePlays = playLists.count('Defensive')
+        bothPlays = playLists.count('Both')
+        unknownPlays = playList.count('Inconclusive')
+
+        #playStyle of Robot
+        if aggressivePlays > defensivePlays:
+            if aggressivePlays > bothPlays:
+                playStyle = 'Agressive'
+        if defensivePlays > aggressivePlays:
+            if defensivePlays > bothPlays:
+                playStyle = 'Defensive'
+        if bothPlays > aggressivePlays:
+            if bothPlays > defensivePlays:
+                playStyle = 'Adaptable'
+        if aggressivePlays == defensivePlays:
+            playStyle = 'Adaptable'
 
         #Type of Robot
         if getTeleopHighGoals > getTeleopLowGoals:
@@ -355,19 +374,22 @@ def weightActive():
         active = whole(active)
         weightActiveList.append(active)
         typeList.append(type)
-    return(weightActiveList, typeList)
+        playList.append(playStyle)
+    return(weightActiveList, typeList, playList)
 
 def dataAnalysis():
     aData = weightActive()
     #hData = weightHistory()
     weights = aData[0]
     typeList = aData[1]
+    playList = aData[2]
     x = 0
     score = 0
     printData = []
     for x in range(0, len(getTeamNumber())):
         score = int(weights[x])
         type = typeList[x]
+        playStyle = playList[x]
         response = teamDict[getTeamNumber()[x]]['response']
         round(score,0)
         score = int(score)
@@ -375,6 +397,7 @@ def dataAnalysis():
         add = {
         'score':(int(score)),
         'type':(type),
+        'playStyle':(playStyle)
         'response':(response)}
         printData.append(add)
     return(printData)
@@ -395,6 +418,7 @@ def finalPrint():
     leaderboard = getLeaderboard()
     data = []
     checked = []
+    print('Summary of all Teams')
     for x in range (0, len(getTeamNumber())):
         if getTeamNumber()[x] in checked:
             continue
@@ -402,21 +426,30 @@ def finalPrint():
     for x in range (0, len(checked)):
         score = (str(leaderboard[checked[x]]['score']))
         type = (str(leaderboard[checked[x]]['type']))
+        playStyle = (str(leaderboard[checked[x]]['playStyle']))
         response = (str(leaderboard[checked[x]]['response']))
-        add = [score,type,response]
+        add = [score,type,playStyle,response]
         data.append(add)
-    df = pd.DataFrame(data,index=[checked],columns=['Score','Type','Reponse'])
+    df = pd.DataFrame(data,index=[checked],columns=['Score','Type','Play Style','Reponse'])
     print(df)
     print()
     print('All Data Collected by Team 6925\'s scouts.')
-    print()
-
-def teamLookup():
+    print('Lookup more Information')
     lookup = input('Team #: ' )
-    print(teamDict[lookup])
+    data2 = str([
+    leaderboard[lookup['type']],
+    leaderboard[lookup['score']],
+    leaderboard[lookup['playStyle']]
+    leaderboard[lookup['response']],
+    ])
+    df2 = pd.DataFrame(data2,index=[lookup],columns=['Insert'])
+    print(str(
+    'Score: '+leaderboard[lookup['score']])+
+    ', Type: '+leaderboard[lookup['type']]+
+    ', Response: '+leaderboard[lookup['response']]+)
+
 if __name__ == '__main__':
     get_credentials()
     getSheet()
     teamDictMaker()
     finalPrint()
-    teamLookup()
