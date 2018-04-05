@@ -24,7 +24,7 @@ year = datetime.now().year #Gets Year
 lastyear = year - 1
 event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
-ror = 9 #How many questions asked
+ror = 13 #How many questions asked
 x = 0 #Do not change
 
 def get_credentials():
@@ -56,7 +56,7 @@ def getSheet():
     service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
     spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE' #Google Sheet ID
-    rangeName = 'B2:K' #Range
+    rangeName = 'B2:N' #Range
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
@@ -64,9 +64,8 @@ def getSheet():
     if not values:
         print('No data found.')
     for row in values:
-        for x in range(0, ror): #Range of Rows
+        for x in range(0, len(row)): #Range of Rows
             mainList.append(str(row[x]))
-            x = x + 1
 
 def findInfo(sendy, y): #Makes the List
     x = y
@@ -103,14 +102,19 @@ def getScoutingData():
     x = 0
     for x in range(0, len(getTeamNumber())):
         scoutingData = {}
-        add = {'Auto Actions':(getList(1)[x]),
-        'teleopHighGoals':(getList(2)[x]),
-        'teleopLowGoals':(getList(3)[x]),
-        'vaults':(getList(4)[x]),
-        'usefull':(getList(5)[x]),
-        'rating':(getList(6)[x]),
-        'climb':(getList(7)[x]),
-        'response':(getList(8)[x])}
+        add = {
+        'Match #':(getList(1)[x]),
+        'Scouter':(getList(2)[x]),
+        'startingPosition':(getList(3)[x]),
+        'Auto Actions':(getList(4)[x]),
+        'teleopHighGoals':(getList(5)[x]),
+        'teleopLowGoals':(getList(6)[x]),
+        'vaults':(getList(7)[x]),
+        'playStyle':(getList(8)[x]),
+        'usefull':(getList(9)[x]),
+        'rating':(getList(10)[x]),
+        'climb':(getList(11)[x]),
+        'response':(getList(12)[x])}
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
     return(scoutingDataList)
@@ -137,22 +141,38 @@ def teamDictMaker():
     for x in range(0, len(teamList)):
         if teamList[x] in checked:
             checked.append(teamList[x])
-            add2 = scoutingData[x]
             add1 = teamDict[teamList[x]]
-            climbList = []
+            add2 = scoutingData[x]
+            matchList = []
+            scouterList = []
+            positionList = []
             autoActionList = []
-            climbList.append(add1['climb'])
-            climbList.append(add2['climb'])
+            climbList = []
+            styleList = []
+            matchList.append(add1['matchesIn'])
+            matchList.appned(add2['matchesIn'])
+            scouterList.append(add1['Scouters'])
+            scouterList.appned(add2['Scouters'])
+            positionList.appned(add1['startingPosition'])
+            positionList.appned(add2['startingPosition'])
             autoActionList.append(add1['Auto Actions'])
             autoActionList.append(add2['Auto Actions'])
+            styleList.append(add1['playStyles'])
+            styleList.append(add2['playStyles'])
+            climbList.append(add1['climb'])
+            climbList.append(add2['climb'])
             add3 = {
+            'matchesIn':(matchList),
+            'Scouters':(scouterList),
+            'startingPosition':(positionList),
             'Auto Actions':autoActionList,
             'teleopHighGoals':(str(int((add1['teleopHighGoals']))+(int(add2['teleopHighGoals'])))),
             'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
             'vaults':(str(int((add1['vaults']))+(int(add2['vaults'])))),
             'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
+            'playStyle':(styleList),
             'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
-            'climb':climbList,
+            'climb':(climbList),
             'response':((add1['response'])+'; '+(add2['response'])),
             'matchesRec':(str(int(checked.count(teamList[x]))))}
             add = {teamList[x]: (add3)}
@@ -160,10 +180,14 @@ def teamDictMaker():
             checked.append(teamList[x])
             y = scoutingData[x]
             add2 = {
+            'matchesIn':(y['Match #']),
+            'Scouters':(y['Scouter']),
+            'startingPosition':(y['startingPosition']),
             'Auto Actions':(y['Auto Actions']),
             'teleopHighGoals':(y['teleopHighGoals']),
             'teleopLowGoals':(y['teleopLowGoals']),
             'vaults':(y['vaults']),
+            'playStyles':(y['playStyle']),
             'usefull':(y['usefull']),
             'rating':(y['rating']),
             'climb':(y['climb']),
@@ -310,9 +334,7 @@ def weightActive():
                 if autoHigh >= 0.15:
                     weightAutoActions = weightAutoActions + 8
 
-        if (getVaults+getTeleopLowGoals+getTeleopHighGoals) >= 1:
-            teleopScore = (((getVaults*1.75)+(getTeleopLowGoals*3)+(getTeleopHighGoals*3.5))/matches)
-
+        teleopScore = (((getVaults*1.75)+(getTeleopLowGoals*3)+(getTeleopHighGoals*3.5))/matches)
         getUsefull = ((getUsefull / matches)-1)
         getRating = ((getRating / matches)-2)
 
@@ -368,7 +390,6 @@ def getLeaderboard():
         checked.append(getTeamNumber()[x])
     return(getLeaderboard)
 
-
 def finalPrint():
     #Puts all data collected in a Panda Dataframe
     leaderboard = getLeaderboard()
@@ -388,9 +409,14 @@ def finalPrint():
     print(df)
     print()
     print('All Data Collected by Team 6925\'s scouts.')
+    print()
 
+def teamLookup():
+    lookup = input('Team #: ' )
+    print(teamDict[lookup])
 if __name__ == '__main__':
     get_credentials()
     getSheet()
     teamDictMaker()
     finalPrint()
+    teamLookup()
