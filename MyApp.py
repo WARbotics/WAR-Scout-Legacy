@@ -77,6 +77,13 @@ def findInfo(sendy, y): #Makes the List
         except:
             return(sendy)
 
+def perCal(y):
+    y = float(y)
+    y = y * 100
+    round(y,2)
+    y = (str(y)+'%')
+    return(y)
+
 def status():
     #figuring out if TBA is actually online
     statusCheck = tba.status()
@@ -96,6 +103,14 @@ def getTeamNumber(): #Makes a list of teams scouted
     teamList.append(findInfo(teamList, 0))
     del teamList[len(teamList)-1]
     return(teamList)
+def singleTeamList():
+    teamList = getTeamNumber()
+    checked = []
+    for x in range(0, len(teamList)):
+        if teamList[x] in checked:
+            continue
+        checked.append(teamList[x])
+    return(checked)
 
 def getScoutingData():
     scoutingDataList = []
@@ -103,14 +118,14 @@ def getScoutingData():
     for x in range(0, len(getTeamNumber())):
         scoutingData = {}
         add = {
-        'Match #':(getList(1)[x]),
-        'Scouter':(getList(2)[x]),
+        'matchesIn':(getList(1)[x]),
+        'Scouters':(getList(2)[x]),
         'startingPosition':(getList(3)[x]),
         'Auto Actions':(getList(4)[x]),
         'teleopHighGoals':(getList(5)[x]),
         'teleopLowGoals':(getList(6)[x]),
         'vaults':(getList(7)[x]),
-        'playStyle':(getList(8)[x]),
+        'playStyles':(getList(8)[x]),
         'usefull':(getList(9)[x]),
         'rating':(getList(10)[x]),
         'climb':(getList(11)[x]),
@@ -118,15 +133,6 @@ def getScoutingData():
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
     return(scoutingDataList)
-
-def perCal(y):
-    per = y/len(getTeamNumber())
-    per = per * 100
-    round(per,0)
-    per = int(per)
-    per = (str(per)+'%')
-    return(per)
-
 
 def teamDictMaker():
     scoutingData = getScoutingData()
@@ -150,11 +156,11 @@ def teamDictMaker():
             climbList = []
             styleList = []
             matchList.append(add1['matchesIn'])
-            matchList.appned(add2['matchesIn'])
+            matchList.append(add2['matchesIn'])
             scouterList.append(add1['Scouters'])
-            scouterList.appned(add2['Scouters'])
-            positionList.appned(add1['startingPosition'])
-            positionList.appned(add2['startingPosition'])
+            scouterList.append(add2['Scouters'])
+            positionList.append(add1['startingPosition'])
+            positionList.append(add2['startingPosition'])
             autoActionList.append(add1['Auto Actions'])
             autoActionList.append(add2['Auto Actions'])
             styleList.append(add1['playStyles'])
@@ -170,7 +176,7 @@ def teamDictMaker():
             'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
             'vaults':(str(int((add1['vaults']))+(int(add2['vaults'])))),
             'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
-            'playStyle':(styleList),
+            'playStyles':(styleList),
             'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
             'climb':(climbList),
             'response':((add1['response'])+'; '+(add2['response'])),
@@ -180,14 +186,14 @@ def teamDictMaker():
             checked.append(teamList[x])
             y = scoutingData[x]
             add2 = {
-            'matchesIn':(y['Match #']),
-            'Scouters':(y['Scouter']),
+            'matchesIn':(y['matchesIn']),
+            'Scouters':(y['Scouters']),
             'startingPosition':(y['startingPosition']),
             'Auto Actions':(y['Auto Actions']),
             'teleopHighGoals':(y['teleopHighGoals']),
             'teleopLowGoals':(y['teleopLowGoals']),
             'vaults':(y['vaults']),
-            'playStyles':(y['playStyle']),
+            'playStyles':(y['playStyles']),
             'usefull':(y['usefull']),
             'rating':(y['rating']),
             'climb':(y['climb']),
@@ -263,18 +269,46 @@ def weightHistory():
     return(weightHistoryList)
 
 def whole(y):
-    round(y,0)
-    int(y)
+    try:
+        round(y,0)
+        int(y)
+    except:
+        pass
     return(y)
+
+def catcher(x,x1,y,y1,z,z1,xy,xz,yz):
+    if x > y:
+        if x > z:
+            return(x1)
+    if y > x:
+        if y > z:
+            return(y1)
+    if z > x:
+        if z > y:
+            return(z1)
+    if x == y:
+        return(xy)
+    if x == z:
+        return(xz)
+    if y == z:
+        return(yz)
 
 def weightActive():
     #Gives a weights to all data collected activley
     weightActiveList = []
     typeList = []
     playList = []
-    for x in range(0, len(getTeamNumber())):
+    highAvList = []
+    lowAvList = []
+    vaultAvList = []
+    climbAvList = []
+    startingList = []
+    avALine = []
+    avAHigh = []
+    avALow = []
+    for x in range(0, len(singleTeamList())):
         weightAutoActions = 0
-        teamList = getTeamNumber()[x]
+        teamList = singleTeamList()[x]
         matches = int(teamDict[teamList]['matchesRec'])
         getAutoActions = teamDict[teamList]['Auto Actions']
         playLists = teamDict[teamList]['playStyles']
@@ -291,19 +325,17 @@ def weightActive():
         defensivePlays = playLists.count('Defensive')
         bothPlays = playLists.count('Both')
         unknownPlays = playList.count('Inconclusive')
+        positions = (teamDict[teamList]['startingPosition'])
+        right = positions.count('R')
+        middle = positions.count('M')
+        left = positions.count('L')
+        noShows = positions.count('No Show')
 
         #playStyle of Robot
-        if aggressivePlays > defensivePlays:
-            if aggressivePlays > bothPlays:
-                playStyle = 'Agressive'
-        if defensivePlays > aggressivePlays:
-            if defensivePlays > bothPlays:
-                playStyle = 'Defensive'
-        if bothPlays > aggressivePlays:
-            if bothPlays > defensivePlays:
-                playStyle = 'Adaptable'
-        if aggressivePlays == defensivePlays:
-            playStyle = 'Adaptable'
+        playStyle = catcher(aggressivePlays,'Agressive',defensivePlays,'Defensive',bothPlays,'Adaptable','Adaptable','Adaptable','Adaptable')
+
+        #Favorite Position of Robot
+        start = catcher(right,'Right',middle,'Middle',left,'Left','Inconclusive','Inconclusive','Inconclusive')
 
         #Type of Robot
         if getTeleopHighGoals > getTeleopLowGoals:
@@ -339,26 +371,25 @@ def weightActive():
                     type = 'Vegetable'
 
         #Auto Data weighting
-        if autoCross >= 1 or autoLow >= 1 or autoHigh >= 1:
-            autoCross = ((autoCross+autoLow+autoHigh)/(matches))
-            if autoCross >= 1:
-                if autoCross >= 0.75:
-                    weightAutoActions = weightAutoActions + 3
-            if autoLow >= 1:
-                autoLow = autoLow / matches
-                if autoLow >= 0.4:
-                    weightAutoActions = weightAutoActions + 6
-            if autoHigh >= 1:
-                autoHigh = autoHigh / matches
-                if autoHigh >= 0.15:
-                    weightAutoActions = weightAutoActions + 8
+        autoCross = ((autoCross+autoLow+autoHigh)/(matches))
+        if autoCross >= 1:
+            if autoCross >= 0.75:
+                weightAutoActions = weightAutoActions + 3
+        if autoLow >= 1:
+            autoLow = autoLow / matches
+            if autoLow >= 0.4:
+                weightAutoActions = weightAutoActions + 6
+        if autoHigh >= 1:
+            autoHigh = autoHigh / matches
+            if autoHigh >= 0.15:
+                weightAutoActions = weightAutoActions + 8
 
         teleopScore = (((getVaults*1.75)+(getTeleopLowGoals*3)+(getTeleopHighGoals*3.5))/matches)
         getUsefull = ((getUsefull / matches)-1)
         getRating = ((getRating / matches)-2)
 
         if climbList.count('Yes') >= 1:
-            weightClimber = (((climbList.count('Yes'))*(6))/(matches))
+            weightClimber = (((climbList.count('Yes'))*(4))/(matches))
         else:
             weightClimber = 0
 
@@ -375,42 +406,58 @@ def weightActive():
         weightActiveList.append(active)
         typeList.append(type)
         playList.append(playStyle)
-    return(weightActiveList, typeList, playList)
+        highAvList.append(str(getTeleopHighGoals/matches))
+        lowAvList.append(str(getTeleopLowGoals/matches))
+        vaultAvList.append(str(getVaults/matches))
+        climbAvList.append(str(climbList.count('Yes')/matches))
+        startingList.append(start)
+        avALine.append(str(autoCross))
+        avALow.append(str(autoLow))
+        avAHigh.append(str(autoHigh))
+    return(weightActiveList, typeList, playList, highAvList,
+    lowAvList, vaultAvList, startingList, avALine, avALow, avAHigh, climbAvList)
 
 def dataAnalysis():
+    teamList = singleTeamList()
     aData = weightActive()
     #hData = weightHistory()
-    weights = aData[0]
-    typeList = aData[1]
-    playList = aData[2]
     x = 0
     score = 0
     printData = []
-    for x in range(0, len(getTeamNumber())):
-        score = int(weights[x])
-        type = typeList[x]
-        playStyle = playList[x]
-        response = teamDict[getTeamNumber()[x]]['response']
-        round(score,0)
-        score = int(score)
-        score = str(score)
+    for x in range(0, len(teamList)):
+        score = int(aData[0][x])
+        type = aData[1][x]
+        playStyle = aData[2][x]
+        y = teamDict[teamList[x]]
+        score = whole(score)
         add = {
         'score':(int(score)),
         'type':(type),
-        'playStyle':(playStyle)
-        'response':(response)}
+        'playStyle':(playStyle),
+        'matchesIn':(y['matchesIn']),
+        'Scouters':(y['Scouters']),
+        'startingPosition':(aData[6][x]),
+        'Average A-Line':perCal(aData[7][x]),
+        'Average A-Low':perCal(aData[8][x]),
+        'Average A-High':perCal(aData[9][x]),
+        'teleopHighGoals':(aData[3][x]),
+        'teleopLowGoals':(aData[4][x]),
+        'vaults':(aData[5][x]),
+        'climb':perCal(aData[10][x]),
+        'response':(y['response']),
+        'matchesRec':(y['matchesRec'])
+        }
         printData.append(add)
     return(printData)
 
 def getLeaderboard():
     #Creates a leaderboard
+    teamList = singleTeamList()
     getLeaderboard = {}
-    checked = []
     data = dataAnalysis()
-    for x in range(0, len(getTeamNumber())):
-        add = {(getTeamNumber()[x]): (data[x])}
+    for x in range(0, len(teamList)):
+        add = {(teamList[x]): (data[x])}
         getLeaderboard.update(add)
-        checked.append(getTeamNumber()[x])
     return(getLeaderboard)
 
 def finalPrint():
@@ -434,19 +481,34 @@ def finalPrint():
     print(df)
     print()
     print('All Data Collected by Team 6925\'s scouts.')
-    print('Lookup more Information')
-    lookup = input('Team #: ' )
-    data2 = str([
-    leaderboard[lookup['type']],
-    leaderboard[lookup['score']],
-    leaderboard[lookup['playStyle']]
-    leaderboard[lookup['response']],
-    ])
-    df2 = pd.DataFrame(data2,index=[lookup],columns=['Insert'])
-    print(str(
-    'Score: '+leaderboard[lookup['score']])+
-    ', Type: '+leaderboard[lookup['type']]+
-    ', Response: '+leaderboard[lookup['response']]+)
+    for x in range (100):
+        print('Lookup more Information')
+        print()
+        lookup = input('Team #: ')
+        try:
+            y = leaderboard[lookup]
+            data2 = [[
+            str(y['score']),
+            str(y['type']),
+            str(y['startingPosition']),
+            str(y['playStyle']),
+            str(y['vaults']),
+            str(y['teleopLowGoals']),
+            str(y['teleopHighGoals']),
+            str(y['climb']),
+            str(y['Average A-Line']),
+            str(y['Average A-Low']),
+            str(y['Average A-High']),
+            str(y['response']),
+            ]]
+            df2 = pd.DataFrame(data2,index=[lookup],columns=['Score','Type','Start',
+            'Play Style','Mean Vault','Mean Low','Mean High','Climb Success','Mean A-Line','Mean A-Low','Mean A-High','Response'])
+            print(df2)
+        except KeyError:
+            print('Could not find team '+str(lookup)+'.')
+        except:
+            print('An error occured!')
+        print()
 
 if __name__ == '__main__':
     get_credentials()
