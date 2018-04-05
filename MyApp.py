@@ -464,12 +464,8 @@ def finalPrint():
     #Puts all data collected in a Panda Dataframe
     leaderboard = getLeaderboard()
     data = []
-    checked = []
+    checked = singleTeamList()
     print('Summary of all Teams')
-    for x in range (0, len(getTeamNumber())):
-        if getTeamNumber()[x] in checked:
-            continue
-        checked.append(getTeamNumber()[x])
     for x in range (0, len(checked)):
         score = (str(leaderboard[checked[x]]['score']))
         type = (str(leaderboard[checked[x]]['type']))
@@ -481,8 +477,8 @@ def finalPrint():
     print(df)
     print()
     print('All Data Collected by Team 6925\'s scouts.')
+    print('Lookup more Information')
     for x in range (100):
-        print('Lookup more Information')
         print()
         lookup = input('Team #: ')
         try:
@@ -505,7 +501,10 @@ def finalPrint():
             'Play Style','Mean Vault','Mean Low','Mean High','Climb Success','Mean A-Line','Mean A-Low','Mean A-High','Response'])
             print(df2)
         except KeyError:
-            print('Could not find team '+str(lookup)+'.')
+            if lookup == '':
+                print('Actually put something in.')
+            else:
+                print('Could not find team '+str(lookup)+'.')
         except:
             print('An error occured!')
         print()
