@@ -306,7 +306,11 @@ def weightActive():
     avALine = []
     avAHigh = []
     avALow = []
+<<<<<<< HEAD
     for x in range(0, len(singleTeamList())):
+=======
+    for x in range(0, len(getTeamNumber())):
+>>>>>>> 3acfac35ffc3294d63739e4f815aecd2f9ad24b7
         weightAutoActions = 0
         teamList = singleTeamList()[x]
         matches = int(teamDict[teamList]['matchesRec'])
@@ -424,11 +428,19 @@ def dataAnalysis():
     x = 0
     score = 0
     printData = []
+<<<<<<< HEAD
     for x in range(0, len(teamList)):
         score = int(aData[0][x])
         type = aData[1][x]
         playStyle = aData[2][x]
         y = teamDict[teamList[x]]
+=======
+    for x in range(0, len(getTeamNumber())):
+        score = int(aData[0][x])
+        type = aData[1][x]
+        playStyle = aData[2][x]
+        y = teamDict[singleTeamList()[x]]
+>>>>>>> 3acfac35ffc3294d63739e4f815aecd2f9ad24b7
         score = whole(score)
         add = {
         'score':(int(score)),
