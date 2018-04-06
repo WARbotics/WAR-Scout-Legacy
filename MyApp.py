@@ -373,25 +373,25 @@ def weightActive():
                 if (getTeleopHighGoals-3) > getVaults:
                     if (getTeleopHighGoals-3) > getTeleopLowGoals:
                         type = 'Hard High Shooter'
-        if getTeleopLowGoals > getTeleopHighGoals:
+        elif getTeleopLowGoals > getTeleopHighGoals:
             if getTeleopLowGoals > getVaults:
                 type = 'Low Goal Shooter'
                 if (getTeleopLowGoals-4) > getTeleopHighGoals:
                     if (getTeleopLowGoals-4) > getVaults:
                         type = 'Hard Low Shooter'
-        if getVaults > getTeleopHighGoals:
+        elif getVaults > getTeleopHighGoals:
             if getVaults > getTeleopLowGoals:
                 type = 'Vault Main'
                 if (getVaults-4) > getTeleopHighGoals:
                     if (getVaults-4) > getTeleopLowGoals:
                         type = 'Hard Vault Main'
-        if getTeleopLowGoals == getTeleopHighGoals:
+        elif getTeleopLowGoals == getTeleopHighGoals:
             type = 'High & Low Shooter'
-        if getTeleopLowGoals == getVaults:
+        elif getTeleopLowGoals == getVaults:
             type = 'Vault & Low Goal Shooter'
-        if getTeleopHighGoals == getVaults:
+        elif getTeleopHighGoals == getVaults:
             type = 'Vault & High Goal Shooter'
-        if getTeleopLowGoals == getTeleopHighGoals:
+        elif getTeleopLowGoals == getTeleopHighGoals:
             if getTeleopLowGoals == getVaults:
                 type = 'Mix'
         if getVaults == 0:
@@ -535,7 +535,8 @@ def finalPrint():
             str(y['response']),
             ]]
             df2 = pd.DataFrame(data2,index=[lookup],columns=['Score','Type','Start',
-            'Play Style','Mean Vault','Mean Low','Mean High','Climb Success','Mean A-Line','Mean A-Low','Mean A-High','Response'])
+            'Play Style','Mean Vault','Mean Low','Mean High','Climb Success','Mean A-Line',
+            'Mean A-Low','Mean A-High','Response'])
             print(df2)
         except KeyError:
             if lookup == '':
