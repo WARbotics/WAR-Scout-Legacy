@@ -24,7 +24,7 @@ year = datetime.now().year #Gets Year
 lastyear = year - 1
 event = str(year) + 'gagr'
 lastevent = (str(lastyear))+ 'gagr'
-ror = 13 #How many questions asked
+ror = 15 #How many questions asked
 x = 0 #Do not change
 
 def get_credentials():
@@ -56,18 +56,24 @@ def getSheet():
     service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
 
     spreadsheetId = '1C8Jgf7W5VTzNBMeYhkVsjFx3g6fqF8MzqdUfIvHAMDE' #Google Sheet ID
-    rangeName = 'B2:N' #Range
+    rangeName = 'B2:P' #Range
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     values = result.get('values', [])
 
     if not values:
         print('No data found.')
-    for row in values:
-        for x in range(0, len(row)): #Range of Rows
-            mainList.append(str(row[x]))
-
-def findInfo(sendy, y): #Makes the List
+    #for row in values:
+        #for x in range(0, len(row)): #Range of Rows
+            #mainList.append(str(row[x]))
+    for x in range(0, len(values)):
+        for y in range(0, ror):
+            try:
+                mainList.append(values[x][y])
+            except:
+                break
+def findInfo(sendy, y):
+    #Makes the List
     x = y
     z = 0 #No not change
     for z in range(0, 5000):
@@ -114,6 +120,11 @@ def singleTeamList():
         checked.append(teamList[x])
     return(checked)
 
+def nullcatch(x):
+    if x == '':
+        x = 0
+    return(x)
+
 def getScoutingData():
     scoutingDataList = []
     x = 0
@@ -123,15 +134,17 @@ def getScoutingData():
         'matchesIn':(getList(1)[x]),
         'Scouters':(getList(2)[x]),
         'startingPosition':(getList(3)[x]),
-        'Auto Actions':(getList(4)[x]),
-        'teleopHighGoals':(getList(5)[x]),
-        'teleopLowGoals':(getList(6)[x]),
-        'vaults':(getList(7)[x]),
-        'playStyles':(getList(8)[x]),
-        'usefull':(getList(9)[x]),
-        'rating':(getList(10)[x]),
-        'climb':(getList(11)[x]),
-        'response':(getList(12)[x])}
+        'A-Line':(getList(4)[x]),
+        'A-High':(getList(5)[x]),
+        'A-Low':(getList(6)[x]),
+        'teleopHighGoals':(getList(7)[x]),
+        'teleopLowGoals':(getList(8)[x]),
+        'vaults':(getList(9)[x]),
+        'playStyles':(getList(10)[x]),
+        'usefull':(getList(11)[x]),
+        'rating':(getList(12)[x]),
+        'climb':(getList(13)[x]),
+        'response':(getList(14)[x])}
         scoutingData.update(add)
         scoutingDataList.append(scoutingData)
     return(scoutingDataList)
@@ -154,29 +167,37 @@ def teamDictMaker():
             matchList = []
             scouterList = []
             positionList = []
-            autoActionList = []
+            autoLineList = []
             climbList = []
             styleList = []
+            aLowList = []
+            aHighList = []
             matchList.append(add1['matchesIn'])
             matchList.append(add2['matchesIn'])
             scouterList.append(add1['Scouters'])
             scouterList.append(add2['Scouters'])
             positionList.append(add1['startingPosition'])
             positionList.append(add2['startingPosition'])
-            autoActionList.append(add1['Auto Actions'])
-            autoActionList.append(add2['Auto Actions'])
+            autoLineList.append(add1['A-Line'])
+            autoLineList.append(add2['A-Line'])
             styleList.append(add1['playStyles'])
             styleList.append(add2['playStyles'])
             climbList.append(add1['climb'])
             climbList.append(add2['climb'])
+            aLowList.append(str(add1['A-Low']))
+            aLowList.append(str(add2['A-Low']))
+            aHighList.append(str(add1['A-High']))
+            aHighList.append(str(add2['A-High']))
             add3 = {
             'matchesIn':(matchList),
             'Scouters':(scouterList),
             'startingPosition':(positionList),
-            'Auto Actions':autoActionList,
-            'teleopHighGoals':(str(int((add1['teleopHighGoals']))+(int(add2['teleopHighGoals'])))),
-            'teleopLowGoals':(str(int((add1['teleopLowGoals']))+(int(add2['teleopLowGoals'])))),
-            'vaults':(str(int((add1['vaults']))+(int(add2['vaults'])))),
+            'A-Line':(autoLineList),
+            'A-Low':(aLowList),
+            'A-High':(aHighList),
+            'teleopHighGoals':(str(int(nullcatch(add1['teleopHighGoals']))+(int(nullcatch(add2['teleopHighGoals']))))),
+            'teleopLowGoals':(str(int(nullcatch(add1['teleopLowGoals']))+(int(nullcatch(add2['teleopLowGoals']))))),
+            'vaults':(str(int(nullcatch(add1['vaults']))+(int(nullcatch(add2['vaults']))))),
             'usefull':(str(int((add1['usefull']))+(int(add2['usefull'])))),
             'playStyles':(styleList),
             'rating':(str(int((add1['rating']))+(int(add2['rating'])))),
@@ -191,10 +212,12 @@ def teamDictMaker():
             'matchesIn':(y['matchesIn']),
             'Scouters':(y['Scouters']),
             'startingPosition':(y['startingPosition']),
-            'Auto Actions':(y['Auto Actions']),
-            'teleopHighGoals':(y['teleopHighGoals']),
-            'teleopLowGoals':(y['teleopLowGoals']),
-            'vaults':(y['vaults']),
+            'A-Line':(y['A-Line']),
+            'A-Low':(y['A-Low']),
+            'A-High':(y['A-High']),
+            'teleopHighGoals':nullcatch(y['teleopHighGoals']),
+            'teleopLowGoals':nullcatch(y['teleopLowGoals']),
+            'vaults':nullcatch(y['vaults']),
             'playStyles':(y['playStyles']),
             'usefull':(y['usefull']),
             'rating':(y['rating']),
@@ -203,6 +226,7 @@ def teamDictMaker():
             'matchesRec':(1)}
             add = {(teamList[x]): (add2)}
         teamDict.update(add)
+    print(teamDict)
     return(teamDict)
 
 def getHistoricData(teamBlankNumber):
@@ -313,7 +337,7 @@ def weightActive():
         weightAutoActions = 0
         teamList = singleTeamList()[x]
         matches = int(teamDict[teamList]['matchesRec'])
-        getAutoActions = teamDict[teamList]['Auto Actions']
+        #getAutoActions = teamDict[teamList]['Auto Actions']
         playLists = teamDict[teamList]['playStyles']
         getTeleopHighGoals = int(teamDict[teamList]['teleopHighGoals'])
         getTeleopLowGoals = int(teamDict[teamList]['teleopLowGoals'])
@@ -321,9 +345,11 @@ def weightActive():
         getUsefull = int(teamDict[teamList] ['usefull'])
         climbList = teamDict[teamList]['climb']
         getRating = int(teamDict[teamList]['rating'])
-        autoLow = getAutoActions.count('Placed Cube on Switch')
-        autoHigh = getAutoActions.count('Placed Cube on Scale')
-        autoCross = getAutoActions.count('Crossed A-Line')
+        autoLow = ((teamDict[teamList]['A-Low'].count('1')+(teamDict[teamList]['A-Low'].count('2'))))
+        autoHigh = ((teamDict[teamList]['A-High'].count('1')+(teamDict[teamList]['A-High'].count('2'))))
+        autoCross = (teamDict[teamList]['A-Line'].count('Yes'))
+        doubleLow = (teamDict[teamList]['A-Low'].count('2'))
+        doubleHigh = (teamDict[teamList]['A-High'].count('2'))
         aggressivePlays = playLists.count('Agressive')
         defensivePlays = playLists.count('Defensive')
         bothPlays = playLists.count('Both')
@@ -374,7 +400,7 @@ def weightActive():
                     type = 'Vegetable'
 
         #Auto Data weighting
-        autoCross = ((autoCross+autoLow+autoHigh)/(matches))
+        autoCross = ((autoCross)/(matches))
         if autoCross >= 1:
             if autoCross >= 0.75:
                 weightAutoActions = weightAutoActions + 3
@@ -386,6 +412,14 @@ def weightActive():
             autoHigh = autoHigh / matches
             if autoHigh >= 0.15:
                 weightAutoActions = weightAutoActions + 8
+        if doubleLow >= 1:
+            doubleLow = doubleLow / matches
+            if doubleLow >= 0.15:
+                weightAutoActions = weightAutoActions + 3
+        if doubleHigh >= 1:
+            doubleHigh = doubleLow / matches
+            if doubleLow >= 0.1:
+                weightAutoActions = weightAutoActions + 4
 
         teleopScore = (((getVaults*1.75)+(getTeleopLowGoals*3)+(getTeleopHighGoals*3.5))/matches)
         getUsefull = ((getUsefull / matches)-1)
