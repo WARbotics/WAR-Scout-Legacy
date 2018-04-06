@@ -226,7 +226,6 @@ def teamDictMaker():
             'matchesRec':(1)}
             add = {(teamList[x]): (add2)}
         teamDict.update(add)
-    print(teamDict)
     return(teamDict)
 
 def getHistoricData(teamBlankNumber):
@@ -443,14 +442,14 @@ def weightActive():
         weightActiveList.append(active)
         typeList.append(type)
         playList.append(playStyle)
-        highAvList.append(str(getTeleopHighGoals/matches))
-        lowAvList.append(str(getTeleopLowGoals/matches))
-        vaultAvList.append(str(getVaults/matches))
-        climbAvList.append(str(climbList.count('Yes')/matches))
+        highAvList.append(str(round(getTeleopHighGoals/matches,1)))
+        lowAvList.append(str(round(getTeleopLowGoals/matches,1)))
+        vaultAvList.append(str(round(getVaults/matches,1)))
+        climbAvList.append(str(round(climbList.count('Yes')/matches,1)))
         startingList.append(start)
-        avALine.append(str(autoCross))
-        avALow.append(str(autoLow))
-        avAHigh.append(str(autoHigh))
+        avALine.append(str(round(autoCross,1)))
+        avALow.append(str(round(autoLow,1)))
+        avAHigh.append(str(round(autoHigh,1)))
     return(weightActiveList, typeList, playList, highAvList,
     lowAvList, vaultAvList, startingList, avALine, avALow, avAHigh, climbAvList)
 
