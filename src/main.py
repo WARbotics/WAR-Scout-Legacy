@@ -6,12 +6,13 @@ import operator
 dependent_vars, raw_team_data = data.getSheet('B1:O1')[0], data.getSheet('B2:O')
 dlen, tlen = len(dependent_vars), len(raw_team_data)
 QT = {
+    'ID': dependent_vars.index('ID of the Team'),
     'THatch': dependent_vars.index('How many hatches did they mount?'), 
     'TCargo': dependent_vars.index('How much cargo did they secure?'), 
     'SHatch': dependent_vars.index('How many S:Hatches?'), 
+    'SCargo': dependent_vars.index('How many S:Cargo?'),
     'lineCross': dependent_vars.index('Crossed HAB Line?'), 
     'startPos': dependent_vars.index('Starting Position'),
-    'ID': dependent_vars.index('ID of the Team'),
     'climb': dependent_vars.index('HAB Climbing'),
     'playStyle': dependent_vars.index('What was the robot\'s play style?'),
     'help': dependent_vars.index('How much did the robot contribute to the team?'),
@@ -30,7 +31,6 @@ df = pd.DataFrame(team_list, index=team_list, columns=['ID'])
 #print('DONE')
 
 class Team:
-
     def average_list(self, input):
         holder = 0
         for num in input:
@@ -41,33 +41,54 @@ class Team:
         print("Finding Types... ", end="\r", flush=True)
         df['Type'], df['Ball Avg'], df['Hatch Avg'] = None, None, None
         for team_mod in team_list:
-            type_list, ball_list, hatch_list, sball_list, shatch_list, holder = [], [], [], [], [], 0
-            #----Averages
+            output, actionDict = {'type': 'Uknown', 'start_type': 'Uknown'}, {}
             for n in raw_team_data:
                 if n[0] == team_mod:
-                    ball_list.append(n[QT['TCargo']])
-                    hatch_list.append(n[QT['THatch']])
-                    sball_list.append(n[QT['SCargo']])
-                    shatch_list.append
-            hatch_avg = self.average_list(hatch_list)
-            ball_avg = self.average_list(ball_list)
-            #----Types
+                    for key, val in QT:
+                        actionDict[key] = n[val]
+            #-----Averages
+            hatch_avg = self.average_list(actionDict['THatch'])
+            ball_avg = self.average_list(actionDict['TCargo'])
+            sHatch_avg = self.average_list(actionDict['SHatch'])
+            sBall_avg = self.average_list(actionDict['SCargo'])
+            #----Teleop Phase
             if hatch_avg == ball_avg:
-                holder = 'Mixed'
+                output['type'] = 'Mixed'
             elif hatch_avg > ball_avg:
-                holder = 'Hatch Main'
+                output['type'] = 'Hatch Main'
             elif ball_avg > hatch_avg:
-                holder = 'Ball Main'
+                output['type'] = 'Ball Main'
             elif hatch_avg - ball_avg > 4:
-                holder = 'Hard Hatch Main'
+                output['type'] = 'Hard Hatch Main'
             elif ball_avg - hatch_avg > 4:
-                holder = 'Hard Ball Main'
-            elif ball_avg == 0:
-                if hatch_avg == 0:
-                    holder = 'Vegetable'
-            
+                output['type'] = 'Hard Ball Main'
+            elif ball_avg < 1:
+                if hatch_avg < 1:
+                    output['type'] = 'Vegetable'
+            #---Sandstorm Phase
+            if sHatch_avg == sBall_avg:
+                output['start_type'] = 'Mixed'
+            elif sHatch_avg > sBall_avg:
+                output['start_type'] = 'Goes for Hatch'
+            elif sBall_avg > sHatch_avg:
+                output['start_type'] = 'Goes for Cargo'
+            elif sBall_avg < 1:
+                if sHatch_avg < 1:
+                    output['start_type'] = 'No Plays'
+            #---Start Position
+            if actionDict['startPos'].count('L') > actionDict['startPos'].count('R'):
+                if actionDict['startPos'].count('L') > actionDict['startPos'].count('M'):
+                    output['startPos'] = 'Left'
+            elif actionDict['startPos'].count('R') > actionDict['startPos'].count('L'):
+                if actionDict['startPos'].count('R') > actionDict['startPos'].count('M'):
+                    output['startPos'] = 'Right'
+            elif actionDict['startPos'].count('M') > actionDict['startPos'].count('L'):
+                if actionDict['startPos'].count('M') > actionDict['startPos'].count('M'):
+                    output['startPos'] = 'Middle'
+            else:
+                output['startPos'] = 'Mixed'
             print('Finding Types... '+str(team_list.index(team_mod)/len(team_list)), end="%\r")
-            df.loc[team_mod]['Type'], df.loc[team_mod]['Ball Avg'], df.loc[team_mod]['Hatch Avg'] = holder, ball_avg, hatch_avg
+            df.loc[team_mod]['Type'], df.loc[team_mod]['Ball Avg'], df.loc[team_mod]['Hatch Avg'] = type, ball_avg, hatch_avg
         print('Finding Types... DONE!')
 
     
@@ -78,4 +99,4 @@ class Team:
 if __name__ == '__main__':
     Team().find_data()
     #df.loc['6925'].append('Hello')
-    print(df)
+    #print(df)
