@@ -8,7 +8,7 @@ import httplib2 #For HTTP Usage
 import requests #For HTTP Usage
 import os #For Local File Usage
 
-SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
+SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'src\client_secret.json' #Goto Google's API Dev
 APPLICATION_NAME = '2019 Scout Form' #Name of Application
 
@@ -50,6 +50,33 @@ def getSheet(range):
         print('DONE!')
         return(values)
 
-
+def update_values(spreadsheet_id, range_name, value_input_option, _values):
+    print("Exporting... ", end="", flush=True)
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discoveryUrl)
+    # [START sheets_update_values]
+    values = [
+        [
+            #Values
+        ],
+        # Additional rows ...
+    ]
+    # [START_EXCLUDE silent]
+    values = _values
+    # [END_EXCLUDE]
+    body = {
+        'values': values
+    }
+    result = service.spreadsheets().values().update(
+        spreadsheetId=spreadsheet_id, range=range_name,
+        valueInputOption=value_input_option, body=body).execute()
+    print('{0} cells updated.'.format(result.get('updatedCells')))
+    # [END sheets_update_values]
+    return result
+    
 if __name__ == '__main__':
     print(getSheet('B2:P'))
+    #update_values('1dYGGIlULMGon1FZJ3vn0u29EQvL7sjt-Wbo10JV9E7s', 'B2:P', 'RAW', [['foo']])

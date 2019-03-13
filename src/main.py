@@ -1,6 +1,5 @@
 import dataCollection as data
 import pandas as pd
-import export
 import tbapy
 import operator
 
@@ -21,6 +20,16 @@ class Team:
         for num in input:
             holder += float(self.checkNull(num))
         return(round(holder / len(input), 1))
+
+
+    def numberToLetters(self, q):
+        q = q - 1
+        result = ''
+        while q >= 0:
+            remain = q % 26
+            result = chr(remain+65) + result;
+            q = q//26 - 1
+        return(result)
 
     def percent(self, input):
         x = round(input*100, 1)
@@ -45,14 +54,13 @@ class Team:
             'driving': dependent_vars.index('How would you rate the team\'s driving?'),
             'free': dependent_vars.index('Free Response (No more than a sentence or two)')
         }
-
         team_list = []
         for team in raw_team_data:
             if team[0] not in team_list:
                 team_list.append(str(team[0]))
-
         df = pd.DataFrame(index=team_list)
-        print("Finding Types... ", end="\r", flush=True)
+        df['ID'] = None
+        print("Analyzing data... ", end="\r", flush=True)
         for team_mod in team_list:
             output, actionDict = {'Line Cross': ''}, {}
             for n in raw_team_data:
@@ -130,17 +138,21 @@ class Team:
             else:
                 output['startPos'] = 'Mixed'
             #--Final
+            header = ['ID']
+            df.loc[team_mod]['ID'] = actionDict['ID'][0]
             for key, val in output.items():
-                df[key] = None
+                try:
+                    df[key]
+                except:
+                    df[key] = None
                 df.loc[team_mod][key] = str(val)
-
-            print('Finding Types... '+self.percent(team_list.index(team_mod)/len(team_list)), end="%\r")
-        print('Finding Types... DONE!')
+                header.append(key)
+            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list)), end="%\t\r")
+        print('Analyzing data... DONE!')
         df.to_excel("output.xlsx")
-    
+        listDf = df.values.tolist()
+        data.update_values('1dYGGIlULMGon1FZJ3vn0u29EQvL7sjt-Wbo10JV9E7s', 'A:'+self.numberToLetters(dlen), 'RAW', [header]+listDf)
         return(df)
 
-  
-
 if __name__ == '__main__':
-    print(Team().find_data())
+   print(Team().find_data())
