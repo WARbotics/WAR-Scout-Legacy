@@ -124,7 +124,10 @@ class Team:
             #---Line Cross
             output['Line Cross'] = ('Overall: '+(self.percent((actionDict['lineCross'].count('Level 1') + actionDict['lineCross'].count('Level 2'))/len(actionDict['lineCross'])))+' | Level 2: '+self.percent(actionDict['lineCross'].count('Level 2')/len(actionDict['lineCross']))+' | Level 1: '+self.percent(actionDict['lineCross'].count('Level 1')/len(actionDict['lineCross'])))
             #---Climb 2+
-            output['Climb 2+'] = self.percent((actionDict['climb'].count('Level 2') + actionDict['climb'].count('Level 3'))/ len(actionDict['climb']))
+            l2, l3 = self.percent((actionDict['climb'].count('Level 2')) / len(actionDict['climb'])), self.percent((actionDict['climb'].count('Level 3')) / len(actionDict['climb']))
+            output['Climbs >2'] = ('Overall: '+(self.percent((actionDict['climb'].count('Level 2') + actionDict['climb'].count('Level 3'))/ len(actionDict['climb'])))+(' | L2: '+l2+' | L3: '+l3))
+            climb_assist = actionDict['climb'].count('They helped another team climb')
+            output['Climb Assists'] = (str(climb_assist)+' | '+self.percent(climb_assist / len(actionDict['climb'])))
             #---Playstyle
             if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('Aggressive'):
                 if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('MBoth'):
@@ -137,6 +140,19 @@ class Team:
                     output['startPos'] = 'Both'
             else:
                 output['startPos'] = 'Mixed'
+            #---Free Response
+            word_list, checked, output['Key Words'] = [], [], {}
+            for response in actionDict['free']:
+                word_list += response.split(' ')
+            for word in word_list:
+                if word not in checked:
+                    output['Key Words'][str(word)] = word_list.count(word)
+                    checked.append(word)
+            sorted_by_value, add = sorted(output['Key Words'].items(), key=lambda kv: kv[1]), {} #Sorts the similarity of each person by least to greatest
+            sorted_by_value.reverse() #Reveres the order to greatest to least
+            for n in sorted_by_value[:5]: #Removes anything after the 5th position
+                add[n[0]] = n[1]
+            output['Key Words'] = add
             #--Final
             header = ['ID']
             df.loc[team_mod]['ID'] = actionDict['ID'][0]
@@ -147,8 +163,9 @@ class Team:
                     df[key] = None
                 df.loc[team_mod][key] = str(val)
                 header.append(key)
-            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list)), end="%\t\r")
-        print('Analyzing data... DONE!')
+            #Output
+            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list))+' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="%\t\r")
+        print('Analyzing data... DONE!           ')
         df.to_excel("output.xlsx")
         listDf = df.values.tolist()
         data.update_values('1dYGGIlULMGon1FZJ3vn0u29EQvL7sjt-Wbo10JV9E7s', 'A:'+self.numberToLetters(dlen), 'RAW', [header]+listDf)
