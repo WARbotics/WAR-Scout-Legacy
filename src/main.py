@@ -21,7 +21,6 @@ class Team:
             holder += float(self.checkNull(num))
         return(round(holder / len(input), 1))
 
-
     def numberToLetters(self, q):
         q = q - 1
         result = ''
@@ -37,18 +36,52 @@ class Team:
             return(str(int(x))+'%')
         except:
             return(str(x)+'%')
+
+    def combine_points(self, input1, input2):
+        add = []
+        if len(input1) > len(input2):
+            smallest = input2
+        else:
+            smallest = input1
+        
+        for i in range(len(smallest)):
+            add.append(int(self.checkNull(input1[i]))+int(self.checkNull(input2[i])))
+        return(self.average_list(add))
+
+    def four_comp(self, dict, inputs):
+        largest = {'Names': [], 'Val': 0}
+        output = ''
+        for key in inputs:
+            if dict[key] > largest['Val']:
+                largest = {'Names': [key], 'Val': dict[key]}
+            if dict[key] - 4 > largest['Val']:
+                largest = {'Names': [key+' Speical'], 'Val': dict[key]}
+            if dict[key] == largest['Val']:
+                largest['Names'].append(key)
+        for i in range(len(largest['Names'])):
+            try:
+                largest['Names'][i+1]
+                output += largest['Names'][i]+' & '
+            except:
+                output += largest['Names'][i]
+        return(output)
+
+
     def find_data(self):
-        dependent_vars, raw_team_data = data.getSheet('B1:O1')[0], data.getSheet('B2:O')
+        dependent_vars, raw_team_data = data.getSheet('B1:R1')[0], data.getSheet('B2:R')
         dlen, tlen = len(dependent_vars), len(raw_team_data)
         QT = {
             'ID': dependent_vars.index('ID of the Team'),
-            'THatch': dependent_vars.index('How many hatches did they mount?'), 
-            'TCargo': dependent_vars.index('How much cargo did they secure?'), 
-            'SHatch': dependent_vars.index('How many S:Hatches?'), 
-            'SCargo': dependent_vars.index('How many S:Cargo?'),
+            'TLHatch': dependent_vars.index('# of ROCKET HATCHES'), #Rocket Hatches
+            'TLCargo': dependent_vars.index('# of ROCKET CARGO'), #Rocket Cargo
+            'TSHATCH': dependent_vars.index('# of ROVER HATCHES'), #Rover Hatches
+            'TSCARGO': dependent_vars.index('# of ROVER CARGO'), #Rover Cargo
+            'SHATCH': dependent_vars.index('How many S:Hatches?'), 
+            'SCARGO': dependent_vars.index('How many S:Cargo?'),
             'lineCross': dependent_vars.index('Crossed HAB Line?'), 
             'startPos': dependent_vars.index('Starting Position'),
             'climb': dependent_vars.index('HAB Climbing'),
+            'high': dependent_vars.index('Did the robot constantly reach level 2+ on the rocket?'),
             'playStyle': dependent_vars.index('What was the robot\'s play style?'),
             'help': dependent_vars.index('How much did the robot contribute to the team?'),
             'driving': dependent_vars.index('How would you rate the team\'s driving?'),
@@ -71,41 +104,36 @@ class Team:
                         except KeyError:
                             actionDict[key] = [n[val]]
             #-----Averages
-            hatch_avg = self.average_list(actionDict['THatch'])
-            ball_avg = self.average_list(actionDict['TCargo'])
-            sHatch_avg = self.average_list(actionDict['SHatch'])
-            sBall_avg = self.average_list(actionDict['SCargo'])
-            output['Tele Hatch'] = hatch_avg
-            output['Tele Cargo'] = ball_avg
-            output['Sand Hatch'] = sHatch_avg
-            output['Sand Cargo'] = sBall_avg
+            averages = {
+                'SHATCH': self.average_list(actionDict['SHATCH']),
+                'SCARGO': self.average_list(actionDict['SCARGO']),
+                'Rocket Hatch': self.average_list(actionDict['TLHatch']),
+                'Rocket Cargo': self.average_list(actionDict['TLCargo']),
+                'Rover Hatch': self.average_list(actionDict['TSHATCH']),
+                'Rover Cargo': self.average_list(actionDict['TSCARGO']),
+                'OHatch': self.combine_points(actionDict['TLHatch'], actionDict['TSHATCH']),
+                'OCargo': self.combine_points(actionDict['TLCargo'], actionDict['TSCARGO'])
+            }
+            output['Tele Hatch'] = 'Overall: '+str(averages['OHatch'])+' | Rocket Hatches: '+str(averages['Rocket Hatch'])+' | Rover Hatches: '+str(averages['Rover Hatch'])
+            output['Tele Cargo'] = 'Overall: '+str(averages['OCargo'])+' | Rocket Cargo: '+str(averages['Rocket Cargo'])+' | Rover Cargo: '+str(averages['Rover Cargo'])
+            output['Sand Hatch'] = averages['SHATCH']
+            output['Sand Cargo'] = averages['SCARGO']
             output['Driving'] = self.average_list(actionDict['driving'])
             output['Contribute'] = self.average_list(actionDict['help'])
             #----Teleop Phase
-            if hatch_avg == ball_avg:
-                output['type'] = 'Mixed'
-            elif hatch_avg > ball_avg:
-                output['type'] = 'Hatch Main'
-            elif ball_avg > hatch_avg:
-                output['type'] = 'Ball Main'
-            elif hatch_avg - ball_avg > 4:
-                output['type'] = 'Hard Hatch Main'
-            elif ball_avg - hatch_avg > 4:
-                output['type'] = 'Hard Ball Main'
-            elif ball_avg < 1:
-                if hatch_avg < 1:
-                    output['type'] = 'Vegetable'
-            else:
-                output['type'] = 'No Plays'
+            output['type'] = self.four_comp(averages, ['Rocket Hatch', 'Rocket Cargo', 'Rover Hatch', 'Rover Cargo'])
+            if averages['OCargo'] < 1:
+                if averages['OHatch'] < 1:
+                    output['type'] += 'Vegetable'
             #---Sandstorm Phase
-            if sHatch_avg == sBall_avg:
+            if averages['SHATCH'] == averages['SCARGO']:
                 output['start_type'] = 'Mixed'
-            elif sHatch_avg > sBall_avg:
+            elif averages['SHATCH'] > averages['SCARGO']:
                 output['start_type'] = 'Goes for Hatch'
-            elif sBall_avg > sHatch_avg:
+            elif averages['SCARGO'] > averages['SHATCH']:
                 output['start_type'] = 'Goes for Cargo'
-            elif sBall_avg < 1:
-                if sHatch_avg < 1:
+            elif averages['SCARGO'] < 1:
+                if averages['SHATCH'] < 1:
                     output['start_type'] = 'No Plays'
             else:
                 output['start_type'] = 'No Plays'
@@ -140,6 +168,7 @@ class Team:
                     output['startPos'] = 'Both'
             else:
                 output['startPos'] = 'Mixed'
+            output['Rocket Above 2+ Scores'] = actionDict['high'].count('Yes') / len(actionDict['high'])
             #---Free Response
             word_list, checked, output['Key Words'] = [], [], {}
             for response in actionDict['free']:
