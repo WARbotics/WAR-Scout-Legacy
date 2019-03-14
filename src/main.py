@@ -3,30 +3,8 @@ import pandas as pd
 import tbapy
 import operator
 
-
-#print("Creating Dataframe... ", end="", flush=True)
-#df.set_index(['ID of the Team'])
-# print('DONE')
-'''
-
-Scout 
- - Data averaging 
- - just split it up
-
-Data Collection 
- - get the data from the spread sheet
- 
-Runtime 
-  - Runs the code base every match  
-
-Worker 
- - IDEA (probaly not)
-   Split the data into parts so that each worker can do it on its own thread 
-'''
-
-class Scout:
-
-    def _check_null(self, x):
+class Team:
+    def checkNull(self, x):
         if x == '':
             return(0)
         else:
@@ -35,7 +13,7 @@ class Scout:
     def average_list(self, input):
         holder = 0
         for num in input:
-            holder += float(self._check_null(num))
+            holder += float(self.checkNull(num))
         return(round(holder / len(input), 1))
 
     def numberToLetters(self, q):
@@ -43,7 +21,7 @@ class Scout:
         result = ''
         while q >= 0:
             remain = q % 26
-            result = chr(remain+65) + result
+            result = chr(remain+65) + result;
             q = q//26 - 1
         return(result)
 
@@ -112,7 +90,6 @@ class Scout:
         df['ID'] = None
         print("Analyzing data... ", end="\r", flush=True)
         for team_mod in team_list:
-            # Split this up into little parts 
             output, actionDict = {'Line Cross': ''}, {}
             for n in raw_team_data:
                 if n[0] == team_mod:
@@ -155,7 +132,7 @@ class Scout:
                     output['start_type'] = 'No Plays'
             else:
                 output['start_type'] = 'No Plays'
-            # ---Start Position
+            #---Start Position
             if actionDict['startPos'].count('L') > actionDict['startPos'].count('R'):
                 if actionDict['startPos'].count('L') > actionDict['startPos'].count('M'):
                     output['startPos'] = 'Left'
@@ -167,19 +144,14 @@ class Scout:
                     output['startPos'] = 'Middle'
             else:
                 output['startPos'] = 'Mixed'
-            # ---Line Cross
-            output['Line Cross'] = ('Overall: '+(self.percent((actionDict['lineCross'].count('Level 1') + actionDict['lineCross'].count('Level 2'))/len(actionDict['lineCross'])))+' | Level 2: '+self.percent(
-                actionDict['lineCross'].count('Level 2')/len(actionDict['lineCross']))+' | Level 1: '+self.percent(actionDict['lineCross'].count('Level 1')/len(actionDict['lineCross'])))
-            # ---Climb 2+
-            l2, l3 = self.percent((actionDict['climb'].count('Level 2')) / len(actionDict['climb'])), self.percent(
-                (actionDict['climb'].count('Level 3')) / len(actionDict['climb']))
-            output['Climbs >2'] = ('Overall: '+(self.percent((actionDict['climb'].count('Level 2') +
-                                                              actionDict['climb'].count('Level 3')) / len(actionDict['climb'])))+(' | L2: '+l2+' | L3: '+l3))
-            climb_assist = actionDict['climb'].count(
-                'They helped another team climb')
-            output['Climb Assists'] = (
-                str(climb_assist)+' | '+self.percent(climb_assist / len(actionDict['climb'])))
-            # ---Playstyle
+            #---Line Cross
+            output['Line Cross'] = ('Overall: '+(self.percent((actionDict['lineCross'].count('Level 1') + actionDict['lineCross'].count('Level 2'))/len(actionDict['lineCross'])))+' | Level 2: '+self.percent(actionDict['lineCross'].count('Level 2')/len(actionDict['lineCross']))+' | Level 1: '+self.percent(actionDict['lineCross'].count('Level 1')/len(actionDict['lineCross'])))
+            #---Climb 2+
+            l2, l3 = self.percent((actionDict['climb'].count('Level 2')) / len(actionDict['climb'])), self.percent((actionDict['climb'].count('Level 3')) / len(actionDict['climb']))
+            output['Climbs >2'] = ('Overall: '+(self.percent((actionDict['climb'].count('Level 2') + actionDict['climb'].count('Level 3'))/ len(actionDict['climb'])))+(' | L2: '+l2+' | L3: '+l3))
+            climb_assist = actionDict['climb'].count('They helped another team climb')
+            output['Climb Assists'] = (str(climb_assist)+' | '+self.percent(climb_assist / len(actionDict['climb'])))
+            #---Playstyle
             if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('Aggressive'):
                 if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('MBoth'):
                     output['startPos'] = 'Defensive'
@@ -200,14 +172,12 @@ class Scout:
                 if word not in checked:
                     output['Key Words'][str(word)] = word_list.count(word)
                     checked.append(word)
-            sorted_by_value, add = sorted(output['Key Words'].items(), key=lambda kv: kv[1]), {
-            }  # Sorts the similarity of each person by least to greatest
-            sorted_by_value.reverse()  # Reveres the order to greatest to least
-            # Removes anything after the 5th position
-            for n in sorted_by_value[:5]:
+            sorted_by_value, add = sorted(output['Key Words'].items(), key=lambda kv: kv[1]), {} #Sorts the similarity of each person by least to greatest
+            sorted_by_value.reverse() #Reveres the order to greatest to least
+            for n in sorted_by_value[:5]: #Removes anything after the 5th position
                 add[n[0]] = n[1]
             output['Key Words'] = add
-            # --Final
+            #--Final
             header = ['ID']
             df.loc[team_mod]['ID'] = actionDict['ID'][0]
             for key, val in output.items():
@@ -217,16 +187,13 @@ class Scout:
                     df[key] = None
                 df.loc[team_mod][key] = str(val)
                 header.append(key)
-            # Output
-            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list)) +
-                  ' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="%\t\r")
+            #Output
+            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list))+' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="%\t\r")
         print('Analyzing data... DONE!           ')
         df.to_excel("output.xlsx")
         listDf = df.values.tolist()
-        data.update_values('1dYGGIlULMGon1FZJ3vn0u29EQvL7sjt-Wbo10JV9E7s',
-                           'A:'+self.number_to_letters(dlen), 'RAW', [header]+listDf)
+        data.update_values('1dYGGIlULMGon1FZJ3vn0u29EQvL7sjt-Wbo10JV9E7s', 'A:'+self.numberToLetters(dlen), 'RAW', [header]+listDf)
         return(df)
 
-
 if __name__ == '__main__':
-    print(Scout().find_data())
+   print(Team().find_data())
