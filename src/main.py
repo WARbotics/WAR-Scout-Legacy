@@ -90,14 +90,20 @@ class Team:
         df['ID'] = None
         print("Analyzing data... ", end="\r", flush=True)
         for team_mod in team_list:
-            output, actionDict = {'Line Cross': ''}, {}
+            output, actionDict = {}, {}
             for n in raw_team_data:
                 if n[0] == team_mod:
                     for key, val in QT.items():
                         try:
-                            actionDict[key] += [n[val]]
-                        except KeyError:
-                            actionDict[key] = [n[val]]
+                            try:
+                                actionDict[key] += [n[val]]
+                            except KeyError:
+                                actionDict[key] = [n[val]]
+                        except IndexError:
+                            try:
+                                actionDict[key] += ['']
+                            except KeyError:
+                                actionDict[key] = ['']
             #-----Averages
             averages = {
                 'SHATCH': self.average_list(actionDict['SHATCH']),
@@ -117,22 +123,23 @@ class Team:
             output['Contribute'] = self.average_list(actionDict['help'])
             #----Teleop Phase
             output['type'] = self.four_comp(averages, ['Rocket Hatch', 'Rocket Cargo', 'Rover Hatch', 'Rover Cargo'])
-            if averages['OCargo'] < 1:
-                if averages['OHatch'] < 1:
-                    output['type'] += 'Vegetable'
+            if averages['OCargo'] <= 0:
+                if averages['OHatch'] <= 0:
+                    output['type'] = 'Vegetable'
             #---Sandstorm Phase
-            if averages['SHATCH'] == averages['SCARGO']:
+            if averages['SCARGO'] < 1:
+                if averages['SHATCH'] < 1:
+                    output['start_type'] = 'No Plays'
+            elif averages['SHATCH'] == averages['SCARGO']:
                 output['start_type'] = 'Mixed'
             elif averages['SHATCH'] > averages['SCARGO']:
                 output['start_type'] = 'Goes for Hatch'
             elif averages['SCARGO'] > averages['SHATCH']:
                 output['start_type'] = 'Goes for Cargo'
-            elif averages['SCARGO'] < 1:
-                if averages['SHATCH'] < 1:
-                    output['start_type'] = 'No Plays'
             else:
                 output['start_type'] = 'No Plays'
             #---Start Position
+            output['startPos'] = 'No Pref'
             if actionDict['startPos'].count('L') > actionDict['startPos'].count('R'):
                 if actionDict['startPos'].count('L') > actionDict['startPos'].count('M'):
                     output['startPos'] = 'Left'
@@ -142,8 +149,7 @@ class Team:
             elif actionDict['startPos'].count('M') > actionDict['startPos'].count('L'):
                 if actionDict['startPos'].count('M') > actionDict['startPos'].count('M'):
                     output['startPos'] = 'Middle'
-            else:
-                output['startPos'] = 'Mixed'
+                
             #---Line Cross
             output['Line Cross'] = ('Overall: '+(self.percent((actionDict['lineCross'].count('Level 1') + actionDict['lineCross'].count('Level 2'))/len(actionDict['lineCross'])))+' | Level 2: '+self.percent(actionDict['lineCross'].count('Level 2')/len(actionDict['lineCross']))+' | Level 1: '+self.percent(actionDict['lineCross'].count('Level 1')/len(actionDict['lineCross'])))
             #---Climb 2+
@@ -154,15 +160,15 @@ class Team:
             #---Playstyle
             if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('Aggressive'):
                 if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('MBoth'):
-                    output['startPos'] = 'Defensive'
+                    output['playStyle'] = 'Defensive'
             elif actionDict['playStyle'].count('Aggressive') > actionDict['playStyle'].count('Defensive'):
                 if actionDict['playStyle'].count('Aggressive') > actionDict['playStyle'].count('Both'):
-                    output['startPos'] = 'Agressive'
+                    output['playStyle'] = 'Agressive'
             elif actionDict['playStyle'].count('Both') > actionDict['playStyle'].count('Defensive'):
                 if actionDict['playStyle'].count('Both') > actionDict['playStyle'].count('Aggressive'):
-                    output['startPos'] = 'Both'
+                    output['playStyle'] = 'Both'
             else:
-                output['startPos'] = 'Mixed'
+                output['playStyle'] = 'Mixed'
             output['Rocket Above 2+ Scores'] = actionDict['high'].count('Yes') / len(actionDict['high'])
             #---Free Response
             word_list, checked, output['Key Words'] = [], [], {}
@@ -178,7 +184,6 @@ class Team:
                 add[n[0]] = n[1]
             output['Key Words'] = add
             #--Final
-            header = ['ID']
             df.loc[team_mod]['ID'] = actionDict['ID'][0]
             for key, val in output.items():
                 try:
@@ -186,7 +191,9 @@ class Team:
                 except:
                     df[key] = None
                 df.loc[team_mod][key] = str(val)
-                header.append(key)
+            header = ['ID']
+            for key, val in output.items():
+                header.append(str(key))
             #Output
             print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list))+' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="%\t\r")
         print('Analyzing data... DONE!           ')

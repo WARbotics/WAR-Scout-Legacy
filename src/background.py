@@ -3,9 +3,12 @@ import dataCollection as data
 import main
 
 last_len = None
+holder = None
 while True:
-    if len(data.getSheet('B2:R')) != last_len:
-        last_len = len(data.getSheet('B2:R'))
+    
+    holder = len(data.getSheet('B2:R'))
+    if holder != last_len:
+        last_len = holder
         main.Team().find_data()
-        print()
     sleep(120)
+    print()
