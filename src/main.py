@@ -47,11 +47,11 @@ class Team:
         largest = {'Names': [], 'Val': 0}
         output = ''
         for key in inputs:
-            if dict[key] > largest['Val']:
+            if (dict[key] - 3) > largest['Val']:
+                largest = {'Names': [key+' Main'], 'Val': dict[key]}
+            elif dict[key] > largest['Val']:
                 largest = {'Names': [key], 'Val': dict[key]}
-            if dict[key] - 4 > largest['Val']:
-                largest = {'Names': [key+' Speical'], 'Val': dict[key]}
-            if dict[key] == largest['Val']:
+            elif dict[key] == largest['Val']:
                 largest['Names'].append(key)
         for i in range(len(largest['Names'])):
             try:
@@ -62,9 +62,23 @@ class Team:
         return(output)
 
 
+    def long_string(self, input1, input2, input3):
+        #'Overall: '+str(averages['OHatch'])+' | Rocket Hatches: '+str(averages['Rocket Hatch'])+' | Rover Hatches: '+str(averages['Rover Hatch'])
+        #0: String | 1: Val
+        output = ''
+        for curr in [input1, input2, input3]:
+            if float(curr[1]) > 0:
+                output += curr[0] + str(curr[1]) + ' | '
+            else:
+                if curr[0] == 'Overall: ':
+                    output += 'Overall: 0(%)'
+        return(output)
+
+
     def find_data(self):
         dependent_vars, raw_team_data = data.getSheet('B1:R1')[0], data.getSheet('B2:R')
         dlen, tlen = len(dependent_vars), len(raw_team_data)
+        BLACK_LIST = ['the', 'they', '&', 'and', 'I', 'it', 'robot', 'team']
         QT = {
             'ID': dependent_vars.index('ID of the Team'),
             'TLHatch': dependent_vars.index('# of ROCKET HATCHES'), #Rocket Hatches
@@ -76,7 +90,7 @@ class Team:
             'lineCross': dependent_vars.index('Crossed HAB Line?'), 
             'startPos': dependent_vars.index('Starting Position'),
             'climb': dependent_vars.index('HAB Climbing'),
-            'high': dependent_vars.index('Did the robot constantly reach level 2+ on the rocket?'),
+            'high': dependent_vars.index('How many times did the robot place a hatch or cargo level 2+ in the rocket?'),
             'playStyle': dependent_vars.index('What was the robot\'s play style?'),
             'help': dependent_vars.index('How much did the robot contribute to the team?'),
             'driving': dependent_vars.index('How would you rate the team\'s driving?'),
@@ -115,8 +129,8 @@ class Team:
                 'OHatch': self.combine_points(actionDict['TLHatch'], actionDict['TSHATCH']),
                 'OCargo': self.combine_points(actionDict['TLCargo'], actionDict['TSCARGO'])
             }
-            output['Tele Hatch'] = 'Overall: '+str(averages['OHatch'])+' | Rocket Hatches: '+str(averages['Rocket Hatch'])+' | Rover Hatches: '+str(averages['Rover Hatch'])
-            output['Tele Cargo'] = 'Overall: '+str(averages['OCargo'])+' | Rocket Cargo: '+str(averages['Rocket Cargo'])+' | Rover Cargo: '+str(averages['Rover Cargo'])
+            output['Tele Hatch'] = self.long_string(['Overall: ' , averages['OHatch']], ['Rocket Hatches: ', averages['Rocket Hatch']], ['Rover Hatches: ', averages['Rover Hatch']])
+            output['Tele Cargo'] = self.long_string(['Overall: ' , averages['OCargo']], ['Rocket Cargo: ', averages['Rocket Cargo']], ['Rover Cargo: ', averages['Rover Cargo']])
             output['Sand Hatch'] = averages['SHATCH']
             output['Sand Cargo'] = averages['SCARGO']
             output['Driving'] = self.average_list(actionDict['driving'])
@@ -169,7 +183,8 @@ class Team:
                     output['playStyle'] = 'Both'
             else:
                 output['playStyle'] = 'Mixed'
-            output['Rocket Above 2+ Scores'] = actionDict['high'].count('Yes') / len(actionDict['high'])
+            #output['Rocket Above 2+ Scores'] = '1-2: ' + str(actionDict['high'].count('1 - 2') / len(actionDict['high']) + '3+: ' + str(actionDict['high'].count('3+') / len(actionDict['high'])))
+            
             #---Free Response
             word_list, checked, output['Key Words'] = [], [], {}
             for response in actionDict['free']:
@@ -180,9 +195,14 @@ class Team:
                     checked.append(word)
             sorted_by_value, add = sorted(output['Key Words'].items(), key=lambda kv: kv[1]), {} #Sorts the similarity of each person by least to greatest
             sorted_by_value.reverse() #Reveres the order to greatest to least
+            for key in sorted_by_value:
+                if key in BLACK_LIST:
+                    del sorted_by_value[key]
             for n in sorted_by_value[:5]: #Removes anything after the 5th position
                 add[n[0]] = n[1]
             output['Key Words'] = add
+            
+            output['Responses'] = actionDict['free']
             #--Final
             df.loc[team_mod]['ID'] = actionDict['ID'][0]
             for key, val in output.items():
@@ -195,7 +215,7 @@ class Team:
             for key, val in output.items():
                 header.append(str(key))
             #Output
-            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list))+' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="%\t\r")
+            print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list))+' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="\t\r")
         print('Analyzing data... DONE!           ')
         df.to_excel("output.xlsx")
         listDf = df.values.tolist()
@@ -203,4 +223,4 @@ class Team:
         return(df)
 
 if __name__ == '__main__':
-   print(Team().find_data())
+   Team().find_data()

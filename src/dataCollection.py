@@ -78,5 +78,5 @@ def update_values(spreadsheet_id, range_name, value_input_option, _values):
     return result
     
 if __name__ == '__main__':
-    print(getSheet('B2:P'))
+    print(getSheet('A1:P'))
     #update_values('1dYGGIlULMGon1FZJ3vn0u29EQvL7sjt-Wbo10JV9E7s', 'B2:P', 'RAW', [['foo']])
