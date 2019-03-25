@@ -77,8 +77,8 @@ class Team:
 
     def find_data(self):
         dependent_vars, raw_team_data = data.getSheet('B1:R1')[0], data.getSheet('B2:R')
-        dlen, tlen = len(dependent_vars), len(raw_team_data)
-        BLACK_LIST = ['the', 'they', '&', 'and', 'I', 'it', 'robot', 'team']
+        dlen, tlen, hlen = len(dependent_vars), len(raw_team_data), 0
+        BLACK_LIST = ['the', 'they', '&', 'and', 'I', 'it', 'robot', 'team', '', ' ', 'a', 'is', 'to', 'N/A', 'an', 'match', 'not', 'their', 'too', 'only', 'on', 'was', 'off', 'of', 'for', 'as', 'by', 'other', 'Their']
         QT = {
             'ID': dependent_vars.index('ID of the Team'),
             'TLHatch': dependent_vars.index('# of ROCKET HATCHES'), #Rocket Hatches
@@ -141,8 +141,8 @@ class Team:
                 if averages['OHatch'] <= 0:
                     output['type'] = 'Vegetable'
             #---Sandstorm Phase
-            if averages['SCARGO'] < 1:
-                if averages['SHATCH'] < 1:
+            if averages['SCARGO'] < 0.4:
+                if averages['SHATCH'] < 0.4:
                     output['start_type'] = 'No Plays'
             elif averages['SHATCH'] == averages['SCARGO']:
                 output['start_type'] = 'Mixed'
@@ -154,14 +154,14 @@ class Team:
                 output['start_type'] = 'No Plays'
             #---Start Position
             output['startPos'] = 'No Pref'
-            if actionDict['startPos'].count('L') > actionDict['startPos'].count('R'):
-                if actionDict['startPos'].count('L') > actionDict['startPos'].count('M'):
+            if actionDict['startPos'].count('L') - 1> actionDict['startPos'].count('R'):
+                if actionDict['startPos'].count('L') - 1> actionDict['startPos'].count('M'):
                     output['startPos'] = 'Left'
-            elif actionDict['startPos'].count('R') > actionDict['startPos'].count('L'):
-                if actionDict['startPos'].count('R') > actionDict['startPos'].count('M'):
+            elif actionDict['startPos'].count('R') - 1> actionDict['startPos'].count('L'):
+                if actionDict['startPos'].count('R') - 1> actionDict['startPos'].count('M'):
                     output['startPos'] = 'Right'
-            elif actionDict['startPos'].count('M') > actionDict['startPos'].count('L'):
-                if actionDict['startPos'].count('M') > actionDict['startPos'].count('M'):
+            elif actionDict['startPos'].count('M') - 1> actionDict['startPos'].count('L'):
+                if actionDict['startPos'].count('M') - 1> actionDict['startPos'].count('M'):
                     output['startPos'] = 'Middle'
                 
             #---Line Cross
@@ -173,14 +173,14 @@ class Team:
             output['Climb Assists'] = (str(climb_assist)+' | '+self.percent(climb_assist / len(actionDict['climb'])))
             #---Playstyle
             if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('Aggressive'):
-                if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('MBoth'):
+                if actionDict['playStyle'].count('Defensive') > actionDict['playStyle'].count('Both'):
                     output['playStyle'] = 'Defensive'
             elif actionDict['playStyle'].count('Aggressive') > actionDict['playStyle'].count('Defensive'):
                 if actionDict['playStyle'].count('Aggressive') > actionDict['playStyle'].count('Both'):
                     output['playStyle'] = 'Agressive'
             elif actionDict['playStyle'].count('Both') > actionDict['playStyle'].count('Defensive'):
                 if actionDict['playStyle'].count('Both') > actionDict['playStyle'].count('Aggressive'):
-                    output['playStyle'] = 'Both'
+                    output['playStyle'] = 'Mixed'
             else:
                 output['playStyle'] = 'Mixed'
             #output['Rocket Above 2+ Scores'] = '1-2: ' + str(actionDict['high'].count('1 - 2') / len(actionDict['high']) + '3+: ' + str(actionDict['high'].count('3+') / len(actionDict['high'])))
@@ -191,13 +191,11 @@ class Team:
                 word_list += response.split(' ')
             for word in word_list:
                 if word not in checked:
-                    output['Key Words'][str(word)] = word_list.count(word)
-                    checked.append(word)
+                    if word not in BLACK_LIST:
+                        output['Key Words'][str(word)] = word_list.count(word)
+                        checked.append(word)
             sorted_by_value, add = sorted(output['Key Words'].items(), key=lambda kv: kv[1]), {} #Sorts the similarity of each person by least to greatest
             sorted_by_value.reverse() #Reveres the order to greatest to least
-            for key in sorted_by_value:
-                if key in BLACK_LIST:
-                    del sorted_by_value[key]
             for n in sorted_by_value[:5]: #Removes anything after the 5th position
                 add[n[0]] = n[1]
             output['Key Words'] = add
@@ -211,9 +209,12 @@ class Team:
                 except:
                     df[key] = None
                 df.loc[team_mod][key] = str(val)
-            header = ['ID']
+            holder = ['ID']
             for key, val in output.items():
-                header.append(str(key))
+                holder.append(str(key))
+            if len(holder) > hlen:
+                header, hlen = holder, len(holder)
+
             #Output
             print('Analyzing data... '+self.percent(team_list.index(team_mod)/len(team_list))+' | '+str(team_list.index(team_mod)+1)+'/'+str(len(team_list)), end="\t\r")
         print('Analyzing data... DONE!           ')
